@@ -1,0 +1,4 @@
+rm a.out
+cp diskimage.ori diskimage
+cc -m32 main.c filesystem.c filesystem.h util.c util.h type.h
+a.out
