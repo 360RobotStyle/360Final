@@ -1,9 +1,6 @@
 #include "filesystem.h"
 
 
-char pathname[256];
-char parameter[256];
-
 
 
 int main (int argc, char* argv[])
@@ -24,6 +21,7 @@ int main (int argc, char* argv[])
 
         sscanf(line, "%s %s %64c", cname, pathname, parameter);
 
+        printf("dirname: %s basename: %s\n", dir_name(), base_name());
         cmd = findCmd(cname);
         if ((int) cmd)
         {

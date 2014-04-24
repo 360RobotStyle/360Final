@@ -25,6 +25,6 @@ void menu();
 void make_dir();
 void change_dir();
 
-void quit();
+void quit ();
 
 #endif
