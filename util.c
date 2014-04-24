@@ -8,17 +8,40 @@ extern PROC* readyQueue;
 extern MINODE minode[NMINODES];
 extern MINODE* root;
 
+extern char pathname[256];
+extern char parameter[256];
+extern char baseName[128];
+extern char dirName[128];
+extern COMPONENTS pathTokens;
 
 int get_block (int fd, int blk, char *buf)
 {
     lseek(fd, (long)(blk * BLOCK_SIZE), 0);
     return read(fd, buf, BLOCK_SIZE);  // return: -1 (error)
-                                    //          0 (EOF)
+                                       //          0 (EOF)
 }
 
 put_block (int dev, int blk, char* buf)
 {
 
+}
+
+char* dir_name()
+{
+    char temp[256];
+
+    strcpy(temp, pathname);
+    strcpy(dirName, dirname(temp));
+    return dirName;
+}
+
+char* base_name()
+{
+    char temp[256];
+
+    strcpy(temp, pathname);
+    strcpy(baseName, basename(temp));
+    return baseName;
 }
 
 MINODE* iget (int dev, unsigned long ino)
