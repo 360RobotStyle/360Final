@@ -19,7 +19,7 @@ int main (int argc, char* argv[])
         line[strlen(line) - 1] = '\0';
         if (0 == line[0]) continue;
 
-        sscanf(line, "%s %s %64c", cname, pathname, parameter);
+        sscanf(line, "%s %s %64c", cname, pathName, parameter);
 
         printf("dirname: %s basename: %s\n", dir_name(), base_name());
         cmd = findCmd(cname);

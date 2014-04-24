@@ -8,29 +8,41 @@ extern PROC* readyQueue;
 extern MINODE minode[NMINODES];
 extern MINODE* root;
 
-extern char pathname[256];
+extern char pathName[256];
 extern char parameter[256];
 extern char baseName[128];
 extern char dirName[128];
-extern COMPONENTS pathTokens;
 
-int get_block (int fd, int blk, char *buf)
+int token_path(char *pathname, char **token_ptrs)
+{
+    int tok_i;
+    token_ptrs[0] = strtok(pathname, "/\n");
+
+    for (tok_i = 0; token_ptrs[tok_i]; tok_i++)
+    {
+        token_ptrs[tok_i + 1] = strtok(NULL, "/\n");
+    }
+    return tok_i;
+}
+
+int get_block(int fd, int blk, char *buf)
 {
     lseek(fd, (long)(blk * BLOCK_SIZE), 0);
     return read(fd, buf, BLOCK_SIZE);  // return: -1 (error)
                                        //          0 (EOF)
 }
 
-put_block (int dev, int blk, char* buf)
+put_block(int dev, int blk, char* buf)
 {
-
+    lseek(dev, (long)(blk * BLOCK_SIZE), 0);
+    return write(dev, buf, BLOCK_SIZE);  // return: -1 (error)
 }
 
 char* dir_name()
 {
     char temp[256];
 
-    strcpy(temp, pathname);
+    strcpy(temp, pathName);
     strcpy(dirName, dirname(temp));
     return dirName;
 }
@@ -39,7 +51,7 @@ char* base_name()
 {
     char temp[256];
 
-    strcpy(temp, pathname);
+    strcpy(temp, pathName);
     strcpy(baseName, basename(temp));
     return baseName;
 }
