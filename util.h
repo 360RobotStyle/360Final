@@ -3,6 +3,8 @@
 
 #include "type.h"
 
+typedef unsigned long u32;
+
 // type.h
 extern GD    *gp;
 extern SUPER *sp;
@@ -41,10 +43,14 @@ int token_path(char *pathname, char **token_ptrs);
  * and basename
  * NOTE: Functions exist in clib.h but it destroys the parameter string
  */
-char* dir_name (void);
-char* base_name (void);
+char* dir_name (char* pathname);
+char* base_name (char* pathname);
 
-
+/*
+ * Converts a pathname, such as /a/b/c/d OR x/y/z, into its (dev, ino)
+ * the returned value is its inumber and dev is its dev number.
+ */
+u32 getino (int* dev, char* pathname);
 MINODE* iget (int dev, unsigned long ino);
 
 
