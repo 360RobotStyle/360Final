@@ -1,5 +1,48 @@
 #include "filesystem.h"
 
+// Matches command line commands to associated function pointer.
+static command command_table[] =
+{
+    // LEVEL 1
+    {"menu",    menu},
+    //{"mkdir",   make_dir},
+    {"cd",      change_dir},
+    //{"pwd",     change_dir},
+    //{"ls",      list_dir},
+    //{"rmdir",   rmdir},
+    //{"creat",   rmdir},
+    //{"link",    link},
+    //{"unlink",  unlink},
+    //{"symlink", symlink},
+    //{"rm",      rm_file},
+    //{"chmod",   chmod_file},
+    //{"chown",   chown_file},
+    //{"stat",    stat_file},
+    //{"touch",   touch_file},
+
+    // LEVEL 2
+    //{"open",    open_file},
+    //{"close",   close_file},
+    //{"pfd",     pfd},
+    //{"lseek",   lseek_file},
+    //{"rewind",  access_file},
+    //{"read",    read_file},
+    //{"write",   write_file},
+    //{"cat",     cat_file},
+    //{"cp",      cp_file},
+    //{"mv",      mv_file},
+
+    // LEVEL 3
+    //{"mount",   mount},
+    //{"umount",  umount},
+    //{"cs",      cs},
+    //{"fork",    do_fork},
+    //{"ps",      do_ps},
+    //{"kill",    do_kill},
+    //{"sync",    sync},
+    {"quit",    quit},
+    {NULL,      NULL}
+};
 
 // Initialize data structures of LEVEL-1
 void init ()
@@ -80,50 +123,19 @@ void mount_root ()
     proc[1].cwd = root;
 }
 
-
-int findCmd(char* cname)
+// Find command pointer associated with given terminal input command.
+command_func findCmd(char* cname)
 {
-    /* LEVEL 1 */
-    if (0 == strcmp(cname, "menu"))    return 0;
-    if (0 == strcmp(cname, "mkdir"))   return 1;
-    if (0 == strcmp(cname, "cd"))      return 2;
-    if (0 == strcmp(cname, "pwd"))     return 3;
-    if (0 == strcmp(cname, "ls"))      return 4;
-    if (0 == strcmp(cname, "rmdir"))   return 5;
-    if (0 == strcmp(cname, "creat"))   return 6;
-    if (0 == strcmp(cname, "link"))    return 7;
-    if (0 == strcmp(cname, "unlink"))  return 8;
-    if (0 == strcmp(cname, "symlink")) return 9;
-    if (0 == strcmp(cname, "rm"))      return 10;
-    if (0 == strcmp(cname, "chmod"))   return 11;
-    if (0 == strcmp(cname, "chown"))   return 12;
-    if (0 == strcmp(cname, "stat"))    return 13;
-    if (0 == strcmp(cname, "touch"))   return 14;
-
-    /* LEVEL 2 */
-    if (0 == strcmp(cname, "open"))    return 20;
-    if (0 == strcmp(cname, "close"))   return 21;
-    if (0 == strcmp(cname, "pfd"))     return 22;
-    if (0 == strcmp(cname, "lseek"))   return 23;
-    if (0 == strcmp(cname, "rewind"))  return 24;
-    if (0 == strcmp(cname, "read"))    return 25;
-    if (0 == strcmp(cname, "write"))   return 26;
-    if (0 == strcmp(cname, "cat"))     return 27;
-    if (0 == strcmp(cname, "cp"))      return 28;
-    if (0 == strcmp(cname, "mv"))      return 29;
-
-    /* LEVEL 3 */
-    if (0 == strcmp(cname, "mount"))   return 30;
-    if (0 == strcmp(cname, "umount"))  return 31;
-    if (0 == strcmp(cname, "cs"))      return 32;
-    if (0 == strcmp(cname, "fork"))    return 33;
-    if (0 == strcmp(cname, "ps"))      return 34;
-    if (0 == strcmp(cname, "kill"))    return 35;
-
-    if (0 == strcmp(cname, "sync"))    return 40;
-    if (0 == strcmp(cname, "quit"))    return 41;
-
-    return -1;
+    command *curr_command;
+    curr_command = command_table;
+    // Find function pointer in command table associated with given cname or
+    // NULL if cname does not match any commands.
+    while (curr_command->name && 0 != strcmp(curr_command->name, cname))
+    {
+        curr_command++;
+    }
+    // Return the function pointer or NULL.
+    return curr_command->func;
 }
 
 

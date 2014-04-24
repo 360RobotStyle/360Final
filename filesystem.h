@@ -8,12 +8,20 @@
 
 typedef unsigned long u32;
 
+typedef void (*command_func)();
+typedef struct command
+{
+    char const *name;
+    command_func func;
+} command;
+
+
 void init ();
 void mount_root ();
-int findCmd(char* cname);
+command_func findCmd(char* cname);
 
 /* LEVEL 1 */
-void menu ();
+void menu();
 void make_dir();
 void change_dir();
 

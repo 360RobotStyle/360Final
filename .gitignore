@@ -4,6 +4,8 @@
 *.obj
 *.elf
 
+*.*.gch
+
 # Libraries
 *.lib
 *.a
