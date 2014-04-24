@@ -6,8 +6,6 @@
 
 #include "util.h"
 
-typedef unsigned long u32;
-
 typedef void (*command_func)();
 typedef struct command
 {

@@ -8,7 +8,7 @@ extern PROC* readyQueue;
 extern MINODE minode[NMINODES];
 extern MINODE* root;
 
-extern char pathname[256];
+extern char pathName[256];
 extern char parameter[256];
 extern char baseName[128];
 extern char dirName[128];
@@ -26,23 +26,66 @@ put_block (int dev, int blk, char* buf)
 
 }
 
-char* dir_name()
+char* dir_name(char* pathname)
 {
     char temp[256];
 
-    strcpy(temp, pathname);
-    strcpy(dirName, dirname(temp));
+    strncpy(temp, pathname, strlen(pathname));
+    strncpy(dirName, dirname(temp), strlen(pathname));
     return dirName;
 }
 
-char* base_name()
+char* base_name(char* pathname)
 {
     char temp[256];
 
-    strcpy(temp, pathname);
-    strcpy(baseName, basename(temp));
+    strncpy(temp, pathname, strlen(pathname));
+    strcpy(baseName, basename(temp), strlen(pathname));
     return baseName;
 }
+
+u32 getino (int* dev, char* pathname)
+{
+
+}
+
+u32 search (MINODE* mip, char* name)
+{
+    int i;
+    char *cp;
+    char buf[BLOCK_SIZE];
+
+    ip = mip->INODE;
+
+    for (i = 0; i < EXT2_NDIR_BLOCKS; i++)
+    {
+        if (0 == ip->i_block[i]) break;
+
+        get_block(mip->dev, ip->i_block[i], buf);
+        dp = (DIR*)buf;
+        cp = buf;
+
+        printf("i=%d i_block[%d]=%d\n\n", i, i, ip->i_block[i]);
+        printf("   i_number rec_len name_len   name\n");
+
+        while (cp < (buf + BLOCK_SIZE))
+        {
+            strncpy(temp, dp->name, dp->name_len);
+            temp[dp->name_len] = 0;
+            //printf("   %5d    %4d    %4d       %s\n", dp->inode, dp->rec_len, dp->name_len, temp);
+
+            if (0 == strcmp(name, temp))
+            {
+                //printf("found %s : ino = %d\n", temp, dp->inode);
+                return dp->inode;
+            }
+            cp += dp->rec_len;
+            dp = (DIR*)cp;
+        }
+    }
+    return -1;
+}
+
 
 MINODE* iget (int dev, unsigned long ino)
 {

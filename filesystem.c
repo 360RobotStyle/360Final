@@ -221,42 +221,7 @@ void quit()
 
 
 
-//int search (INODE* ip, char* name)
-//{
-    //int i;
-    //char* cp;
-    //char buf[BLOCK_SIZE];
-    //char temp[256];
 
-    //for (i = 0; i < 12; i++)
-    //{
-        //if (ip->i_block[i] == 0)
-            //break;
-
-        //get_block(fd, ip->i_block[i], buf);
-        //dp = (DIR*)buf;
-        //cp = buf;
-
-        ////printf("i=%d i_block[%d]=%d\n\n", i, i, ip->i_block[i]);
-        ////printf("   i_number rec_len name_len   name\n");
-
-        //while (cp < (buf + BLOCK_SIZE))
-        //{
-            //strncpy(temp, dp->name, dp->name_len);
-            //temp[dp->name_len] = 0;
-            ////printf("   %5d    %4d    %4d       %s\n", dp->inode, dp->rec_len, dp->name_len, temp);
-
-            //if (0 == strcmp(name, temp))
-            //{
-                ////printf("found %s : ino = %d\n", temp, dp->inode);
-                //return dp->inode;
-            //}
-            //cp += dp->rec_len;
-            //dp = (DIR*)cp;
-        //}
-    //}
-    //return BAD;
-//}
 
 
 //u32 getino (int* dev, char* pathname)
