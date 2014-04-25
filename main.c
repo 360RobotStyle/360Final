@@ -30,7 +30,7 @@ int main (int argc, char* argv[])
 
         sscanf(line, "%s %s %64c", cname, pathName, parameter);
 
-        printf("dirname: %s basename: %s\n", dir_name(pathName), base_name(pathName));
+        //printf("dirname: %s basename: %s\n", dir_name(pathName), base_name(pathName));
         cmd = findCmd(cname);
         if ((int) cmd)
         {
