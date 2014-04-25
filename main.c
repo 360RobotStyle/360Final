@@ -13,6 +13,15 @@ int main (int argc, char* argv[])
 
     while (1)
     {
+        bzero(cname, 64);
+        bzero(line, 64);
+        bzero(pathName, 256);
+        bzero(pathNameTokenized, 256);
+        bzero(pathNameTokenPtrs, 256);
+        bzero(baseName, 128);
+        bzero(dirName, 128);
+        bzero(parameter, 128);
+
         printf("P%d running: ", running->pid);
         printf("input command : ");
         fgets(line, 128, stdin);
@@ -21,7 +30,7 @@ int main (int argc, char* argv[])
 
         sscanf(line, "%s %s %64c", cname, pathName, parameter);
 
-        printf("dirname: %s basename: %s\n", dir_name(), base_name());
+        printf("dirname: %s basename: %s\n", dir_name(pathName), base_name(pathName));
         cmd = findCmd(cname);
         if ((int) cmd)
         {
