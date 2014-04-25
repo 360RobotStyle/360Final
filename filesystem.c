@@ -1,16 +1,19 @@
 #include "filesystem.h"
+#include "level1/level1.h"
+#include "level2/level2.h"
+#include "level3/level3.h"
 
 // Matches command line commands to associated function pointer.
 static command command_table[] =
 {
     // LEVEL 1
     {"menu",    menu},
-    //{"mkdir",   make_dir},
+    //{"mkdir",   mkdir},
     {"cd",      change_dir},
     //{"pwd",     change_dir},
     //{"ls",      list_dir},
     //{"rmdir",   rmdir},
-    //{"creat",   rmdir},
+    //{"creat",   creat_file},
     //{"link",    link},
     //{"unlink",  unlink},
     //{"symlink", symlink},
@@ -165,18 +168,6 @@ void menu ()
            "*********************************************\n");
 }
 
-void change_dir()
-{
-
-}
-
-
-// MORE TO BE DONE
-// Save everything back to diskimage
-void quit()
-{
-    exit(0);
-}
 //INODE* _iget(int fd, int ino)
 //{
     //int blk, offset;
