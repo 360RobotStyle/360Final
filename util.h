@@ -52,9 +52,30 @@ char* base_name (char* pathname);
  */
 u32 getino (int* dev, char* pathname);
 
+/*
+ * Searches the data blocks of a DIR inode (inside a MINODE[]) for name
+ * Assume DIRECT data blocks only.
+ */
 u32 search (MINODE* mip, char* name);
 
 MINODE* iget (int dev, unsigned long ino);
 
+/*
+ * This function releases MINODE[].
+ */
+int iput (MINODE* mip);
+
+/*
+ * Given parent DIR (MINODE pointer) and my inumber, this function
+ * finds the name string of myino in the parent's data block.
+ * Similar to search()
+ */
+int findmyname (MINODE* parent, u32 myino, char* myname);
+
+/*
+ * For a DIR MINODE, extract the inumbers of . and ..
+ * Read in 0th data block. The inumbers are in the first 2 DIR entries
+ */
+int findino (MINODE* mip, u32* myino, u32* parent);
 
 #endif

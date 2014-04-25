@@ -17,6 +17,22 @@ extern char pathNameTokenized[256];
 extern char *pathNameTokenPtrs[256];
 extern int tokenCount;
 
+
+int get_block(int fd, int blk, char *buf)
+{
+    lseek(fd, (long)(blk * BLOCK_SIZE), 0);
+    return read(fd, buf, BLOCK_SIZE);  // return: -1 (error)
+                                       //          0 (EOF)
+}
+
+
+int put_block(int dev, int blk, char* buf)
+{
+    lseek(dev, (long)(blk * BLOCK_SIZE), 0);
+    return write(dev, buf, BLOCK_SIZE);  // return: -1 (error)
+}
+
+
 int token_path(char *pathname, char **token_ptrs)
 {
     int tok_i;
@@ -29,18 +45,6 @@ int token_path(char *pathname, char **token_ptrs)
     return tok_i;
 }
 
-int get_block(int fd, int blk, char *buf)
-{
-    lseek(fd, (long)(blk * BLOCK_SIZE), 0);
-    return read(fd, buf, BLOCK_SIZE);  // return: -1 (error)
-                                       //          0 (EOF)
-}
-
-int put_block(int dev, int blk, char* buf)
-{
-    lseek(dev, (long)(blk * BLOCK_SIZE), 0);
-    return write(dev, buf, BLOCK_SIZE);  // return: -1 (error)
-}
 
 char* dir_name(char* pathname)
 {
@@ -51,6 +55,7 @@ char* dir_name(char* pathname)
     return dirName;
 }
 
+
 char* base_name(char* pathname)
 {
     char temp[256];
@@ -59,6 +64,7 @@ char* base_name(char* pathname)
     strncpy(baseName, basename(temp), strlen(temp));
     return baseName;
 }
+
 
 u32 getino (int* dev, char* pathname)
 {
