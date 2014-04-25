@@ -58,8 +58,42 @@ char* base_name(char* pathname)
 
 u32 getino (int* dev, char* pathname)
 {
+    MINODE* mip;
+    int i, ino, workingDev;
+    char* name[12];
+    char* token;
 
+    if ('/' == pathname[0])
+    {
+        ino = root.ino;
+        *dev = root.dev;
+    }
+    else
+    {
+        ino = running->cwd.ino;
+        *dev = running->cwd.dev;
+    }
+
+    strncpy(pathNameTokenized, pathname, strlen(pathname));
+    tokenCount = token_path(pathNameTokenized, pathNameTokenPtrs);
+
+    if (tokenCount == 0) return -1;
+
+    for (i = 0; i < n; i++)
+    {
+        mip = iget(*dev, ino);
+        //printf("=============================================\n");
+        //printf("i=%d name[%d]=%s\n", i, i, pathNameTokenPtrs[i]);
+        //printf("search for %s in %x\n", pathNameTokenPtrs[i], (u32)&(mip->inode));
+        ino = search(&(mip->inode), pathNameTokenPtrs[i]);
+        *dev = mip->dev;
+        if ((ino == 0) || ((dp->file_type != EXT2_FT_DIR) && ((i + 1) < n)))
+            return -1;
+    }
+
+    return dp->inode;
 }
+
 
 u32 search (MINODE* mip, char* name)
 {

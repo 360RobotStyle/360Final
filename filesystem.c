@@ -219,42 +219,6 @@ void quit()
 //}
 
 
-
-
-
-
-
-//u32 getino (int* dev, char* pathname)
-//{
-    //MINODE* mip;
-    //int n, i, ino;
-    //char* name[12];
-    //char* token;
-    //token = strtok(pathname, "/");
-    //n = 0;
-    //while (token != 0)
-    //{
-        //name[n++] = token;
-        //token = strtok(0, pathname);
-    //}
-
-    //if (n == 0) return BAD;
-
-    //ino = 2;
-    //for (i = 0; i < n; i++)
-    //{
-        //mip = iget(fd, ino);
-        ////printf("=============================================\n");
-        ////printf("i=%d name[%d]=%s\n", i, i, name[i]);
-        ////printf("search for %s in %x\n", name[i], (u32)&(mip->inode));
-        //ino = search(&(mip->inode), name[i]);
-        //if ((ino == 0) || ((dp->file_type != EXT2_FT_DIR) && ((i + 1) < n)))
-            //return 0;
-    //}
-    //*dev = mip->dev;
-    //return dp->inode;
-//}
-
 //int change_dir (char* pathname)
 //{
     //int ino, dev;
