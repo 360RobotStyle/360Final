@@ -51,6 +51,9 @@ char* base_name (char* pathname);
  * the returned value is its inumber and dev is its dev number.
  */
 u32 getino (int* dev, char* pathname);
+
+u32 search (MINODE* mip, char* name);
+
 MINODE* iget (int dev, unsigned long ino);
 
 
