@@ -4,12 +4,12 @@
 void
 do_ls()
 {
-    int dev;
-    MINODE *mip;
-    getino(&dev, pathname);
-    if (!(pathname[0]))
-    {
-        mip
-    }
-
+//    int dev;
+//    MINODE *mip;
+//    getino(&dev, pathname);
+//    if (!(pathname[0]))
+//    {
+//        mip
+//    }
+//
 }

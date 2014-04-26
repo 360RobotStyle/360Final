@@ -10,7 +10,7 @@ static command command_table[] =
     {"menu",    menu},
     //{"mkdir",   mkdir},
     {"cd",      change_dir},
-    //{"pwd",     change_dir},
+    {"pwd",     do_pwd},
     //{"ls",      do_ls},
     //{"rmdir",   rmdir},
     //{"creat",   creat_file},
@@ -122,8 +122,8 @@ void mount_root ()
 
     // Let cwd of both P0 and P1 point at the root minode (refCOunt = 3)
     printf("creating P0, P1\n");
-    proc[0].cwd = iget(fd, ROOT_INODE);
-    //proc[1].cwd = iget(fd, ROOT_INODE);
+    proc[0].cwd = root;
+    proc[1].cwd = root;
 }
 
 // Find command pointer associated with given terminal input command.

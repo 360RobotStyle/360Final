@@ -5,8 +5,8 @@ static void
 pwd_helper(MINODE* mip, char* path_buf)
 {
     MINODE* pip;
-    int myino;
-    int parentino;
+    u32 myino;
+    u32 parentino;
     char dirname_buf[64];
     dirname_buf[0] = '\0';
 
@@ -23,10 +23,18 @@ pwd_helper(MINODE* mip, char* path_buf)
 }
 
 void
-pwd()
+do_pwd()
 {
     char path_buf[128];
-    buf[0] = '\0';
-    pwd_helper(running->cwd, path_buf);
-    printf("%s\n", path_buf);
+
+    if (running->cwd == root)
+    {
+        printf("/\n");
+    }
+    else
+    {
+        path_buf[0] = '\0';
+        pwd_helper(running->cwd, path_buf);
+        printf("%s\n", path_buf);
+    }
 }
