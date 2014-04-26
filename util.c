@@ -50,8 +50,8 @@ char* dir_name(char* pathname)
 {
     char temp[256];
     bzero(temp, 256);
-    strncpy(temp, pathname, strlen(pathname));
-    strncpy(dirName, dirname(temp), strlen(temp));
+    strncpy(temp, pathname, strlen(pathname) + 1);
+    strncpy(dirName, dirname(temp), strlen(temp) + 1);
     return dirName;
 }
 
@@ -60,8 +60,8 @@ char* base_name(char* pathname)
 {
     char temp[256];
     bzero(temp, 256);
-    strncpy(temp, pathname, strlen(pathname));
-    strncpy(baseName, basename(temp), strlen(temp));
+    strncpy(temp, pathname, strlen(pathname) + 1);
+    strncpy(baseName, basename(temp), strlen(temp) + 1);
     return baseName;
 }
 
@@ -84,7 +84,7 @@ u32 getino (int* dev, char* pathname)
         *dev = running->cwd->dev;
     }
 
-    strncpy(pathNameTokenized, pathname, strlen(pathname));
+    strncpy(pathNameTokenized, pathname, strlen(pathname) + 1);
     tokenCount = token_path(pathNameTokenized, pathNameTokenPtrs);
 
     if (tokenCount == 0) return -1;
@@ -127,7 +127,7 @@ u32 search (MINODE* mip, char* name)
 
         while (cp < (buf + BLOCK_SIZE))
         {
-            strncpy(temp, dp->name, dp->name_len);
+            strncpy(temp, dp->name, dp->name_len + 1);
             temp[dp->name_len] = 0;
             printf("   %5d    %4d    %4d       %s\n", dp->inode, dp->rec_len, dp->name_len, temp);
 
@@ -229,7 +229,7 @@ int findmyname (MINODE* parent, u32 myino, char* myname)
 
         while (cp < (buf + BLOCK_SIZE))
         {
-            strncpy(myname, dp->name, dp->name_len);
+            strncpy(myname, dp->name, dp->name_len + 1);
             myname[dp->name_len] = 0;
             printf("   %5d    %4d    %4d       %s\n", dp->inode, dp->rec_len, dp->name_len, myname);
 
