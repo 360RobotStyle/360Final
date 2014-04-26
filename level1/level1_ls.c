@@ -2,7 +2,14 @@
 #include "../util.h"
 
 void
-ls_dir()
+do_ls()
 {
-    
+    int dev;
+    MINODE *mip;
+    getino(&dev, pathname);
+    if (!(pathname[0]))
+    {
+        mip
+    }
+
 }

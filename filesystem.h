@@ -18,11 +18,4 @@ void init ();
 void mount_root ();
 command_func findCmd(char* cname);
 
-/* LEVEL 1 */
-void menu();
-void make_dir();
-void change_dir();
-
-void quit ();
-
 #endif

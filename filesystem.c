@@ -11,7 +11,7 @@ static command command_table[] =
     //{"mkdir",   mkdir},
     {"cd",      change_dir},
     //{"pwd",     change_dir},
-    //{"ls",      list_dir},
+    //{"ls",      do_ls},
     //{"rmdir",   rmdir},
     //{"creat",   creat_file},
     //{"link",    link},
