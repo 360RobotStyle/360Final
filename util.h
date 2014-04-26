@@ -63,7 +63,7 @@ MINODE* iget (int dev, unsigned long ino);
 /*
  * This function releases MINODE[].
  */
-int iput (MINODE* mip);
+void iput (MINODE* mip);
 
 /*
  * Given parent DIR (MINODE pointer) and my inumber, this function

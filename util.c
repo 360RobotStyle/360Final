@@ -186,3 +186,81 @@ MINODE* iget (int dev, unsigned long ino)
 
     return NULL; // minode is full!
 }
+
+void iput (MINODE* mip)
+{
+    int blk, offset;
+    char buf[BLOCK_SIZE];
+
+    mip->refCount--;
+    if (0 < mip->refCount) { return; }
+    if (!mip->dirty) { return; }
+    if (0 == mip->refCount && mip->dirty)
+    {
+        // write INODE back to disk by its (dev, ino)
+
+        // Get INODE of (dev, ino)
+        blk = (mip->ino - 1)/8 + INODEBLOCK;
+        offset = (mip->ino - 1) % 8;
+
+        lseek(mip->dev, (long)(blk * BLOCK_SIZE) + offset, 0);
+        write(mip->dev, mip->INODE, sizeof(INODE));
+    }
+}
+
+int findmyname (MINODE* parent, u32 myino, char* myname)
+{
+    int i;
+    char* cp;
+    char buf[BLOCK_SIZE];
+
+    ip = &(parent->INODE);
+
+    for (i = 0; i < EXT2_NDIR_BLOCKS; i++)
+    {
+        if (0 == ip->i_block[i]) break;
+
+        get_block(parent->dev, ip->i_block[i], buf);
+        dp = (DIR*)buf;
+        cp = buf;
+
+        printf("i=%d i_block[%d]=%d\n\n", i, i, ip->i_block[i]);
+        printf("   i_number rec_len name_len   name\n");
+
+        while (cp < (buf + BLOCK_SIZE))
+        {
+            strncpy(myname, dp->name, dp->name_len);
+            myname[dp->name_len] = 0;
+            printf("   %5d    %4d    %4d       %s\n", dp->inode, dp->rec_len, dp->name_len, myname);
+
+            if (dp->inode == myino)
+            {
+                printf("found ino = %d\n", dp->inode);
+                return dp->inode;
+            }
+            cp += dp->rec_len;
+            dp = (DIR*)cp;
+        }
+    }
+    return -1;
+}
+
+int findino (MINODE* mip, u32* myino, u32* parent)
+{
+    char *cp;
+    char buf[BLOCK_SIZE];
+
+    ip = &(mip->INODE);
+
+    if (0 == ip->i_block[0]) return -1;
+    get_block (mip->dev, ip->i_block[0], buf);
+    dp = (DIR*)buf;
+    cp = buf;
+
+    *myino = dp->inode;
+    cp += dp->rec_len;
+    dp = (DIR*)cp;
+    *parent = dp->inode;
+
+    return 0;
+}
