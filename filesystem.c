@@ -12,12 +12,12 @@ static command command_table[] =
     {"cd",      do_cd},
     {"pwd",     do_pwd},
     //{"ls",      do_ls},
-    //{"rmdir",   rmdir},
+    //{"rmdir",   do_rmdir}, //Cam
     //{"creat",   creat_file},
-    //{"link",    link},
-    //{"unlink",  unlink},
-    //{"symlink", symlink},
-    //{"rm",      rm_file},
+    //{"link",    link}, //Cam
+    //{"unlink",  unlink}, //Cam
+    //{"symlink", symlink}, //Cam
+    //{"rm",      rm_file}, //Cam
     //{"chmod",   chmod_file},
     //{"chown",   chown_file},
     //{"stat",    stat_file},

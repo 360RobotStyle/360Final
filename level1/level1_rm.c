@@ -2,7 +2,7 @@
 #include "../util.h"
 
 void
-rm_file()
+do_rm()
 {
     
 }
