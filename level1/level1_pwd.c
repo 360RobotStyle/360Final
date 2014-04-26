@@ -13,6 +13,8 @@ pwd_helper(MINODE* mip, char* path_buf)
     if (mip != root)
     {
         findino(mip, &myino, &parentino);
+        // FIXME using the mip->dev will not work if the parent directory is on
+        // a different drive.
         pip = iget(mip->dev, parentino);
         pwd_helper(pip, path_buf);
         findmyname(pip, myino, dirname_buf);
