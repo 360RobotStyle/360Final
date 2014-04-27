@@ -13,8 +13,8 @@ stat_file()
 
     if (0 == pathName[0])
     {
-        ino = root->ino;
-        dev = root->dev;
+        ino = running->cwd->ino;
+        dev = running->cwd->dev;
     }
     else
     {

@@ -68,6 +68,7 @@ char* base_name(char* pathname)
 
 u32 getino (int* dev, char* pathname)
 {
+
     MINODE* mip;
     u32 ino;
     int i, workingDev;
@@ -92,16 +93,13 @@ u32 getino (int* dev, char* pathname)
     for (i = 0; i < tokenCount; i++)
     {
         mip = iget(*dev, ino);
-        //printf("=============================================\n");
-        //printf("i=%d name[%d]=%s\n", i, i, pathNameTokenPtrs[i]);
-        //printf("search for %s in %x\n", pathNameTokenPtrs[i], (u32)&(mip->inode));
         ino = search(mip, pathNameTokenPtrs[i]);
         *dev = mip->dev;
-        if ((ino == 0) || ((dp->file_type != EXT2_FT_DIR) && ((i + 1) < tokenCount)))
+        if (-1 == ino)
             return -1;
     }
 
-    return dp->inode;
+    return ino;
 }
 
 
@@ -122,18 +120,19 @@ u32 search (MINODE* mip, char* name)
         dp = (DIR*)buf;
         cp = buf;
 
-        printf("i=%d i_block[%d]=%d\n\n", i, i, ip->i_block[i]);
-        printf("   i_number rec_len name_len   name\n");
+        //printf("i=%d i_block[%d]=%d\n\n", i, i, ip->i_block[i]);
+        //printf("   i_number rec_len name_len   name\n");
 
         while (cp < (buf + BLOCK_SIZE))
         {
             strncpy(temp, dp->name, dp->name_len + 1);
             temp[dp->name_len] = 0;
-            printf("   %5d    %4d    %4d       %s\n", dp->inode, dp->rec_len, dp->name_len, temp);
+            //printf("   %5d    %4d    %4d       %s\n", dp->inode, dp->rec_len, dp->name_len, temp);
 
             if (0 == strcmp(name, temp))
             {
-                printf("found %s : ino = %d\n", temp, dp->inode);
+                if (EXT2_FT_DIR != dp->file_type) return -1; // Ensure it is a DIR
+                //printf("found %s : ino = %d\n", temp, dp->inode);
                 return dp->inode;
             }
             cp += dp->rec_len;
