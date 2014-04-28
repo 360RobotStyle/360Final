@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <time.h>
 #include "../filesystem.h"
 #include "../util.h"
 
@@ -28,6 +29,64 @@ is_empty_dir(MINODE *mip)
     return true;
 }
 
+static int
+rm_child(MINODE *pip, char *my_name)
+{
+    int i;
+    char buf[BLOCK_SIZE];
+    char replace;
+    char *cp;
+    DIR* prev_dp;
+    int shift = 0;
+    if (0 == strncmp(".", my_name, 1) || 0 == strncmp("..", my_name, 2))
+    {
+        printf("can't remove . or .. directories\n");
+        return -1;
+    }
+    for (i = 0; i < 12, pip->INODE->i_block[i]; i++)
+    {
+        // Load dir structures.
+        get_block(pip->dev, pip->INODE->i_block[i], buf);
+        dp = (DIR *) buf;
+        cp = buf;
+
+        // Make sure we're still within the block.
+        while (dp < (buf + BLOCK_SIZE))
+        {
+            replace = dp->name[dp->name_len];
+            dp->name[dp->name_len] = '\0';
+            if (shift)
+            {
+                // We already deleted the record and we're shifting the rest
+                // down.
+                dp->name[dp->name_len] = replace;
+                memmove(((char *) dp) - shift, dp, dp->rec_len);
+            }
+            else if (0 == strcmp(my_name, dp->name))
+            {
+                if (BLOCK_SIZE == dp->rec_len)
+                {
+                    bdalloc(pip->dev, (pip->INODE).i_block[i]);
+                    (pip->INODE).i_block[i] = 0;
+                    (pip->INODE).i_size -= BLOCK_SIZE;
+                    return 0;
+                    // FIXME we need to fix some other stuff in the inode.
+                }
+                else
+                {
+                    // Shift all the directory records down.
+                }
+            }
+            dp->name[dp->name_len] = replace;
+            prev_dp = ((char *) dp) - dp->rec_len;
+            dp = ((char *) dp) + dp->rec_len;
+            // TODO Finish. We need to find the final record and increase it's
+            // length by shift amount.
+        }
+    }
+    return -1;
+}
+
 void
 rmdir()
 {
@@ -46,8 +105,14 @@ rmdir()
 
     // kc notes part 6
     // check DIR type && not BUSY && is empty
-    if (DIR_MODE == (mip->INODE).i_mode && BUSY != running->status)
+    if (DIR_MODE != (mip->INODE).i_mode || BUSY == running->status)
     {
+        iput(mip);
+        return -1;
+    }
+    else
+    {
+        // It's a dir and it's not busy. Make sure it's empty too.
         if (is_empty_dir(mip))
         {
             // kc nodes part 7
@@ -62,12 +127,21 @@ rmdir()
             idalloc(mip->dev, mip->ino);
             iput(mip);
             findino(mip, &mino, &pino);
-            pip = iget(dev, pino, pathName);
-            // FIXME finish here.
+
+            // kc notes part 8
+            pip = iget(dev, pino);
+
+            // kc notes part 9
+            rm_child(pip, base_name(pathName));
+
+            // kc notes part 10
+            pip->INODE->i_links_count--;
+            pip->INODE->i_atime = time(NULL);
+            pip->INODE->i_mtime = pip->INODE->i_atime;
+            pip->dirty = 1;
+            iput(pip);
+
         }
-        // It's a dir and it's not busy. Make sure it's empty too.
+        return 0;
     }
-
-    iput(mip);
-
 }
