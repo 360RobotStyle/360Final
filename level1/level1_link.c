@@ -42,19 +42,12 @@ do_link()
         iput(dip);
         return;
     }
-    sip = iget(dev, src_ino); // This is actually the parent of the link src.
+    sip = iget(dev, 2); // This is actually the parent of the link src.
 
-    for (i = 0; i < 12, sip->INODE->i_block[i]; i++)
+    if (-1 == put_rec(sip, base_name(parameter)))
     {
-        get_block(sip->dev, sip->INODE->i_block[i], buf);
-        dp = (DIR *) buf;
-        // TODO FINISH HERE
-        // need to add the file name into the directory records.
-        //while (((char *) dp) + dp->rec_len
+        printf("Didn't succeed in placing '%s' record\n", parameter);
     }
-
-
-
 
     printf("We're succeeding so far\n");
 

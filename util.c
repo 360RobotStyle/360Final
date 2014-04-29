@@ -430,3 +430,66 @@ int CLR_bit (char buf[], int BIT)
 {
     return buf[BIT/8] &= ~(1 << (BIT%8));
 }
+
+int
+real_rec_len(int name_len)
+{
+    // Round the rec len up to the nearest multiple of 4. Add 8 for the other
+    // fields.
+    return (((name_len + 3) / 4) * 4) + 8;
+}
+
+int
+put_rec(MINODE *pip, char *name)
+{
+    int new_rec_len;
+    int i;
+    int new_block;
+    char replace;
+    char buf[BLOCK_SIZE];
+    new_rec_len = real_rec_len(strlen(name));
+
+    for (i = 0; i < 12, (pip->INODE).i_block[i]; i++)
+    {
+        get_block(pip->dev, (pip->INODE).i_block[i], buf);
+        dp = (DIR *) buf;
+        while ((char *) dp < (buf + BLOCK_SIZE))
+        {
+            replace = dp->name[dp->name_len];
+            dp->name[dp->name_len] = '\0';
+            printf("looking at record '%s'\n", dp->name);
+            dp->name[dp->name_len] = replace;
+            printf("rec len is %i\n", dp->rec_len);
+            printf("expected rec len is %i\n", real_rec_len(dp->name_len));
+            if(dp->rec_len -real_rec_len(dp->name_len) >= new_rec_len)
+            {
+                if (dp->rec_len - real_rec_len(dp->name_len) >= new_rec_len)
+                {
+                    new_rec_len = dp->rec_len - real_rec_len(dp->name_len);
+                    dp->rec_len = real_rec_len(dp->name_len);
+                    dp = (DIR *) (((char *) dp) + dp->rec_len);
+                    dp->rec_len = new_rec_len;
+                    dp->name_len = strlen(name);
+                    strncpy(dp->name, name, strlen(name));
+                    put_block(pip->dev, (pip->INODE).i_block[i], buf);
+                    return 0;
+                }
+                break;
+            }
+            dp = (DIR *) (((char*) dp) + dp->rec_len);
+        }
+    }
+    if (i < 12)
+    {
+        new_block = balloc(pip->dev);
+        (pip->INODE).i_block[i] = new_block;
+        dp = (DIR *) buf;
+        dp->rec_len = BLOCK_SIZE;
+        dp->name_len = strlen(name);
+        strncpy(dp->name, name, strlen(name));
+        put_block(pip->dev, (pip->INODE).i_block[i], buf);
+        return 0;
+    }
+    return -1;
+}
+

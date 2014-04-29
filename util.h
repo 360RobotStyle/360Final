@@ -129,4 +129,9 @@ int CLR_bit (char buf[], int BIT);
  */
 int rm_child(MINODE *pip, char *my_name);
 
+/*
+ * Insert a DIR into the directory blocks of pip->INODE.
+ */
+int put_rec(MINODE *pip, char *name);
+
 #endif
