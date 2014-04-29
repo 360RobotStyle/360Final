@@ -10,6 +10,7 @@ my_mkdir(MINODE* pip, char* name)
     u32 inumber, bnumber;
     char buf[BLOCK_SIZE];
     char* cp;
+    int need_length, ideal_length, rec_len;
 
     // allocate an inode and disk block for the new dir
     inumber = ialloc(pip->dev);
@@ -55,33 +56,69 @@ my_mkdir(MINODE* pip, char* name)
     put_block(pip->dev, bnumber, buf);
 
     // enter name into parent's directory
-/*
+    need_length = 4 * ((8 + strlen(name) + 3) / 4);
+
     // read parent's data block into buf[]
-    need_length = 4 * ((8 + name_len + 3) / 4);
-    ideal_length = 4 * ((8 + name_len + 3) / 4);
-
-    if (rec_len - ideal_length >= need_length)
+    ip = &(pip->INODE);
+    for (i = 0; i < 12 &&  ip->i_block[i]; i++)
     {
-        // enter the new entry as the LAST entry and trim the previous
-        // entry to its ideal length
-    }
-    else
-    {
-        // allocate a new data block
-        // enter the new entry as the first entry in the new data block
-    }
-*/
-    // FIXME write parent's data block back to disk
+        get_block(pip->dev, ip->i_block[i], buf);
+        cp = buf;
+        dp = (DIR*)buf;
+        while (cp < (buf + BLOCK_SIZE))
+        {
+            dp = (DIR*)cp;
+            cp += dp->rec_len;
+        }
+        // dp now points to the LAST entry
+        ideal_length = 4 * ((8 + dp->name_len + 3) / 4);
+        rec_len = dp->rec_len;
 
-    // FIXME increment parent's inode's link count by 1
-    // touch its atime
-    // mark it DIRTY
+        if (rec_len - ideal_length >= need_length)
+        {
+            printf("Old block\n");
+            // enter the new entry as the LAST entry and trim the previous
+            // entry to its ideal length
+            dp->rec_len = ideal_length;
+            rec_len = rec_len - ideal_length;
+            cp -= rec_len;
+            dp = (DIR*)cp;
+            dp->inode = pip->ino;
+            dp->name_len = strlen(name);
+            strncpy(dp->name, name, dp->name_len);
+            dp->rec_len = rec_len;
+            put_block(pip->dev, ip->i_block[i], buf);
+            break;
+        }
+        else
+        {
+            if (0 == ip->i_block[i + 1])
+            {
+                printf("New block\n");
+                // allocate a new data block
+                // enter the new entry as the first entry in the new data block
+                get_block(pip->dev, ip->i_block[i + 1], buf);
+                dp = (DIR*)buf;
+                dp->inode = inumber;
+                strncpy(dp->name, ".", 1);
+                dp->name_len = 1;
+                dp->rec_len = BLOCK_SIZE;
+                put_block(pip->dev, ip->i_block[i + 1], buf);
+                break;
+            }
+        }
+    }
+
+    pip->refCount++;
+    pip->INODE.i_atime = time(0L);
+    pip->dirty = 1;
+
     iput(pip);
 }
 
 
-static u32
-isExist (MINODE* mip, char* name)
+int
+is_exist (MINODE* mip, char* name)
 {
     int i;
     char *cp;
@@ -90,19 +127,16 @@ isExist (MINODE* mip, char* name)
 
     ip = &(mip->INODE);
 
-    for (i = 0; i < EXT2_NDIR_BLOCKS; i++)
+    for (i = 0; i < 12 && ip->i_block[i]; i++)
     {
-        if (0 == ip->i_block[i]) break;
-
         get_block(mip->dev, ip->i_block[i], buf);
         dp = (DIR*)buf;
         cp = buf;
 
         while (cp < (buf + BLOCK_SIZE))
         {
-            strncpy(temp, dp->name, dp->name_len + 1);
+            strncpy(temp, dp->name, dp->name_len);
             temp[dp->name_len] = 0;
-
             if (0 == strcmp(name, temp))
             {
                 return -1;
@@ -136,11 +170,17 @@ make_dir()
     parent = dir_name(pathName);
     child = base_name(pathName);
 
+    printf("%s %s\n", parent, child);
+
+    if (0 == strcmp(child, "."))
+    {
+        printf("mkdir : provide a directory name\n");
+        return;
+    }
     ino = getino(&dev, parent);
     pip = iget(dev, ino);
-
     // verify parent INODE is a DIR and child does not exist in the parent dir
-    if ((pip->INODE.i_mode & 0040000) == 0040000 && -1 == isExist(pip, child))
+    if ((0040000 == (pip->INODE.i_mode & 0040000)) && (0 == is_exist(pip, child)))
     {
         my_mkdir(pip, child);
     }

@@ -288,7 +288,7 @@ void idealloc(int dev, u32 ino)
 
     // get inode bitmap block
     get_block(dev, IBITMAP, buf);      // assume Imap is block 4
-    CLR_bit(buf, ino-1);         // assume you have clr_bit() function 
+    CLR_bit(buf, ino-1);         // assume you have clr_bit() function
 
     // write buf back
     put_block(dev, IBITMAP, buf);
@@ -321,7 +321,7 @@ void bdealloc(int dev, u32 blk)
 
     // get block bitmap block
     get_block(dev, BBITMAP, buf);      // assume Bmap is block 3
-    CLR_bit(buf, blk-1);         // assume you have clr_bit() function 
+    CLR_bit(buf, blk-1);         // assume you have clr_bit() function
 
     // write buf back
     put_block(dev, BBITMAP, buf);
@@ -405,7 +405,7 @@ int balloc (int dev)
         if (TST_bit(buf, i) == 0)
         {
             SET_bit(buf, i);
-            put_block(dev, IBITMAP, buf);
+            put_block(dev, BBITMAP, buf);
 
             decFreeBlocks(dev);
             return (i + 1);

@@ -8,7 +8,7 @@ static command command_table[] =
 {
     // LEVEL 1
     {"menu",    menu},
-    //{"mkdir",   mkdir},
+    {"mkdir",   make_dir},
     {"cd",      do_cd},
     {"pwd",     do_pwd},
     {"ls",      do_ls},
