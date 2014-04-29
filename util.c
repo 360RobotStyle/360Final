@@ -88,15 +88,15 @@ u32 getino (int* dev, char* pathname)
     strncpy(pathNameTokenized, pathname, strlen(pathname) + 1);
     tokenCount = token_path(pathNameTokenized, pathNameTokenPtrs);
 
-    if (tokenCount == 0) return -1;
+    if (tokenCount == 0) return 1;
 
     for (i = 0; i < tokenCount; i++)
     {
         mip = iget(*dev, ino);
         ino = search(mip, pathNameTokenPtrs[i]);
         *dev = mip->dev;
-        if (-1 == ino)
-            return -1;
+        if (1 == ino)
+            return 1;
     }
 
     return ino;
@@ -131,9 +131,7 @@ u32 search (MINODE* mip, char* name)
 
             if (0 == strcmp(name, temp))
             {
-                // XXX Why did we need to ensure it's a dir? Search does not
-                // work for files with this line. -Cameron
-                //if (EXT2_FT_DIR != dp->file_type) return -1; // Ensure it is a DIR
+                if (EXT2_FT_DIR != dp->file_type) return 1; // Ensure it is a DIR
                 //printf("found %s : ino = %d\n", temp, dp->inode);
                 return dp->inode;
             }
@@ -141,9 +139,39 @@ u32 search (MINODE* mip, char* name)
             dp = (DIR*)cp;
         }
     }
-    return -1;
+    return 1;
 }
 
+
+int is_exist (MINODE* mip, char* name)
+{
+    int i;
+    char *cp;
+    char buf[BLOCK_SIZE];
+    char temp[128];
+
+    ip = &(mip->INODE);
+
+    for (i = 0; i < 12 && ip->i_block[i]; i++)
+    {
+        get_block(mip->dev, ip->i_block[i], buf);
+        dp = (DIR*)buf;
+        cp = buf;
+
+        while (cp < (buf + BLOCK_SIZE))
+        {
+            strncpy(temp, dp->name, dp->name_len);
+            temp[dp->name_len] = 0;
+            if (0 == strcmp(name, temp))
+            {
+                return -1;
+            }
+            cp += dp->rec_len;
+            dp = (DIR*)cp;
+        }
+    }
+    return 0;
+}
 
 MINODE* iget (int dev, unsigned long ino)
 {
@@ -204,7 +232,7 @@ void iput (MINODE* mip)
         blk = (mip->ino - 1)/8 + INODEBLOCK;
         offset = (mip->ino - 1) % 8;
 
-        lseek(mip->dev, (long)(blk * BLOCK_SIZE) + offset, 0);
+        lseek(mip->dev, (long)((blk * BLOCK_SIZE) + offset), 0);
         write(mip->dev, mip->INODE, sizeof(INODE));
     }
 }
