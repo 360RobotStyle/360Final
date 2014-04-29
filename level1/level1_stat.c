@@ -16,6 +16,11 @@ stat_file()
         ino = running->cwd->ino;
         dev = running->cwd->dev;
     }
+    else if (0 == strcmp(pathName, "/"))
+    {
+        ino = running->cwd->ino;
+        dev = running->cwd->dev;
+    }
     else
     {
         ino = getino(&dev, pathName);

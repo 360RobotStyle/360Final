@@ -22,8 +22,8 @@ int main (int argc, char* argv[])
         bzero(dirName, 128);
         bzero(parameter, 128);
 
-        printf("P%d running: ", running->pid);
-        printf("input command : ");
+        printf("\033[2mP%d running: ", running->pid);
+        printf("input command : \033[0m");
         fgets(line, 128, stdin);
         line[strlen(line) - 1] = '\0';
         if (0 == line[0]) continue;

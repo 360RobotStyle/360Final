@@ -330,3 +330,17 @@ void bdealloc(int dev, u32 blk)
     incFreeBlocks(dev);         // assume you write this function 
 }
 
+int TST_bit (char buf[], int BIT)
+{
+    return buf[BIT/8] & (1 << (BIT%8));
+}
+
+int SET_bit (char buf[], int BIT)
+{
+    return buf[BIT/8] |= (1 << (BIT%8));
+}
+
+int CLR_bit (char buf[], int BIT)
+{
+    return buf[BIT/8] &= ~(1 << (BIT%8));
+}

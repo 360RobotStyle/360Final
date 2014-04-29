@@ -97,4 +97,10 @@ void idealloc(int dev, u32 ino);
  */
 void bdealloc(int dev, u32 blk);
 
+int TST_bit (char buf[], int BIT);
+
+int SET_bit (char buf[], int BIT);
+
+int CLR_bit (char buf[], int BIT);
+
 #endif
