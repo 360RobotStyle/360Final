@@ -17,7 +17,7 @@ static command command_table[] =
     //{"link",    link}, // cameron
     //{"unlink",  unlink}, // cameron
     //{"symlink", symlink}, // cameron
-    //{"rm",      rm_file}, // cameron
+    {"rm",      do_rm}, // cameron
     //{"chmod",   chmod_file},
     //{"chown",   chown_file},
     {"stat",    stat_file},

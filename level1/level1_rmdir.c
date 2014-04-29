@@ -35,13 +35,14 @@ is_empty_dir(MINODE *mip)
     return true;
 }
 
-static int
+int
 rm_child(MINODE *pip, char *my_name)
 {
     int i;
     char buf[BLOCK_SIZE];
     char replace;
     int shift = 0;
+    DIR *prev_dp;
     if (0 == strncmp(".", my_name, 1) || 0 == strncmp("..", my_name, 2))
     {
         // User tried to remove '.' or '..'.
@@ -50,19 +51,19 @@ rm_child(MINODE *pip, char *my_name)
     }
     for (i = 0; i < 12, (pip->INODE).i_block[i]; i++)
     {
-        printf("checking for child to remove in dir block %i\n", (int) (pip->INODE).i_block[i]);
-        // Load the next dir block.
+        printf("checking for child to remove in rec block %i\n", (int) (pip->INODE).i_block[i]);
+        // Load the next rec block.
         get_block(pip->dev, (pip->INODE).i_block[i], buf);
         dp = (DIR *) buf;
 
         // Make sure we're still within the block.
-        while ((char *) dp < (buf + BLOCK_SIZE) && dp->inode)
+        while ((char *) dp < (buf + BLOCK_SIZE) && dp->rec_len)
         {
             replace = dp->name[dp->name_len];
             dp->name[dp->name_len] = '\0';
             if (shift)
             {
-                if (((char *) dp) + dp->rec_len >= buf + BLOCK_SIZE)
+                if (((char *) dp) + dp->rec_len >= buf + BLOCK_SIZE - 1)
                 {
                     printf("found final rec, increasing rec_len by %i bytes\n", shift);
                     dp->rec_len += shift;
@@ -75,31 +76,37 @@ rm_child(MINODE *pip, char *my_name)
             }
             else if (0 == strcmp(my_name, dp->name))
             {
-                printf("We found a dir structure with name '%s'\n", dp->name);
+                printf("We found a rec structure with name '%s'\n", dp->name);
                 dp->name[dp->name_len] = replace;
                 if (BLOCK_SIZE == dp->rec_len)
                 {
+                    printf("It's the only record on this block. Just deleting the block.\n");
                     // This is the only dir record in the block. Just bdealloc
                     // it.
                     bdealloc(pip->dev, (pip->INODE).i_block[i]);
                     (pip->INODE).i_block[i] = 0;
-                    // XXX assuming i_size was counting the entire block.
                     (pip->INODE).i_size -= BLOCK_SIZE;
                     return 0;
+                }
+                else if (((char *) dp) + dp->rec_len >= buf + BLOCK_SIZE)
+                {
+                    // No need to shift stuff, just extend the previous rec_len
+                    // to the end of the block.
+                    prev_dp->rec_len += dp->rec_len;
                 }
                 else
                 {
                     // Shift all the directory records down.
                     shift = dp->rec_len;
+                    printf("It's not the only record on this block. Shifting other records by %i.\n", shift);
                 }
             }
             else
             {
                 dp->name[dp->name_len] = replace;
             }
+            prev_dp = dp;
             dp = (DIR *) (((char *) dp) + dp->rec_len);
-            // TODO Finish. We need to find the final record and increase it's
-            // length by shift amount.
         }
         put_block(pip->dev, (pip->INODE).i_block[i], buf);
     }
@@ -115,9 +122,15 @@ do_rmdir()
     MINODE* pip;
     int i;
     int dev;
-    printf("getting to rmdir with pathname '%s'\n", pathName);
+    printf("rmdir with pathname '%s'\n", pathName);
     // kc notes part 2
     mino = getino(&dev, pathName);
+    if (-1 == mino)
+    {
+        printf("'getino' failed for pathName '%s'\n", pathName);
+        return;
+    }
+    printf("inode number is %i\n", (int) mino);
 
     // kc notes part 3
     mip = iget(dev, mino);
@@ -126,22 +139,20 @@ do_rmdir()
 
     // kc notes part 6
     // check DIR type && not BUSY && is empty
-    printf("%s i_mode is %x.\n", pathName, MASK_MODE & (mip->INODE).i_mode);
+    //printf("%s i_mode is %x.\n", pathName, MASK_MODE & (mip->INODE).i_mode);
+    printf("%s i_mode is %x.\n", pathName, (mip->INODE).i_mode);
     printf("Expected i_mode %x.\n", DIR_MODE);
     if (DIR_MODE != (MASK_MODE & (mip->INODE).i_mode))
     {
         printf("Not a dir.\n");
-        iput(mip);
     }
     else if (RUNNING == running->status)
     {
         printf("Dir is busy.\n");
-        iput(mip);
     }
     else if (!(is_empty_dir(mip)))
     {
         printf("Dir is not empty.\n");
-        iput(mip);
     }
     // It's a dir and it's not busy and it's empty
     else
@@ -156,9 +167,8 @@ do_rmdir()
                 bdealloc(mip->dev, (mip->INODE).i_block[i]);
             }
         }
-        idealloc(mip->dev, mip->ino);
-        iput(mip);
         findino(mip, &mino, &pino);
+        idealloc(mip->dev, mip->ino);
         printf("mino is %i, pino is %i\n", (int) mino, (int) pino);
 
         // kc notes part 8
@@ -174,4 +184,5 @@ do_rmdir()
         pip->dirty = 1;
         iput(pip);
     }
+    iput(mip);
 }

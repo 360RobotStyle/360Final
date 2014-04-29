@@ -123,4 +123,10 @@ int SET_bit (char buf[], int BIT);
 
 int CLR_bit (char buf[], int BIT);
 
+/*
+ * Remove child of folder pointed to by pip with name my_name. Make sure pip is
+ * a DIR_MODE file before calling this.
+ */
+int rm_child(MINODE *pip, char *my_name);
+
 #endif

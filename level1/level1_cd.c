@@ -17,4 +17,8 @@ do_cd()
         iput(running->cwd);
         running->cwd = mip;
     }
+    else
+    {
+        printf("Couldn't get the inode for '%s'\n", pathName);
+    }
 }

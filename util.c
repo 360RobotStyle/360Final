@@ -131,7 +131,9 @@ u32 search (MINODE* mip, char* name)
 
             if (0 == strcmp(name, temp))
             {
-                if (EXT2_FT_DIR != dp->file_type) return -1; // Ensure it is a DIR
+                // XXX Why did we need to ensure it's a dir? Search does not
+                // work for files with this line. -Cameron
+                //if (EXT2_FT_DIR != dp->file_type) return -1; // Ensure it is a DIR
                 //printf("found %s : ino = %d\n", temp, dp->inode);
                 return dp->inode;
             }
