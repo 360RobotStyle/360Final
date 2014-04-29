@@ -30,9 +30,9 @@ file_info (int dev, u32 ino)
     strcpy(temp, ctime (&t));
     temp[strlen(temp) - 1] = 0;
     printf(" %3d %4d %4d %6d %s  ", mip->INODE.i_links_count,
-                                     mip->INODE.i_uid,
-                                     mip->INODE.i_gid,
-                                     mip->INODE.i_size, temp);
+                                    mip->INODE.i_uid,
+                                    mip->INODE.i_gid,
+                                    mip->INODE.i_size, temp);
     iput(mip);
 }
 
