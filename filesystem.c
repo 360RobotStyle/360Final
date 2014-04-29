@@ -14,7 +14,7 @@ static command command_table[] =
     {"ls",      do_ls},
     {"rmdir",   do_rmdir}, // cameron
     //{"creat",   creat_file},
-    //{"link",    link}, // cameron
+    {"link",    do_link}, // cameron
     //{"unlink",  unlink}, // cameron
     //{"symlink", symlink}, // cameron
     {"rm",      do_rm}, // cameron
