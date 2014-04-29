@@ -15,12 +15,11 @@ my_mkdir(MINODE* pip, char* name)
     // allocate an inode and disk block for the new dir
     inumber = ialloc(pip->dev);
     bnumber = balloc(pip->dev);
-
     // to load INODE into a minode[],
     mip = iget(pip->dev, inumber);
 
     // write contents into the intended INODE in memory
-    mip->INODE.i_mode = 0x41ED;
+    mip->INODE.i_mode = D_DIR_MODE;
     mip->INODE.i_uid = running->uid;
     mip->INODE.i_gid = running->gid;
     mip->INODE.i_size = 1024;
@@ -70,23 +69,23 @@ my_mkdir(MINODE* pip, char* name)
             dp = (DIR*)cp;
             cp += dp->rec_len;
         }
+        cp -= dp->rec_len;
+
         // dp now points to the LAST entry
         ideal_length = 4 * ((8 + dp->name_len + 3) / 4);
         rec_len = dp->rec_len;
-
         if (rec_len - ideal_length >= need_length)
         {
-            printf("Old block\n");
             // enter the new entry as the LAST entry and trim the previous
             // entry to its ideal length
             dp->rec_len = ideal_length;
-            rec_len = rec_len - ideal_length;
-            cp -= rec_len;
+            cp += dp->rec_len;
             dp = (DIR*)cp;
-            dp->inode = pip->ino;
+            dp->inode = inumber;
+            printf("PIP ino %u\n", dp->inode);
             dp->name_len = strlen(name);
             strncpy(dp->name, name, dp->name_len);
-            dp->rec_len = rec_len;
+            dp->rec_len = rec_len - ideal_length;
             put_block(pip->dev, ip->i_block[i], buf);
             break;
         }
@@ -94,7 +93,6 @@ my_mkdir(MINODE* pip, char* name)
         {
             if (0 == ip->i_block[i + 1])
             {
-                printf("New block\n");
                 // allocate a new data block
                 // enter the new entry as the first entry in the new data block
                 get_block(pip->dev, ip->i_block[i + 1], buf);
@@ -114,38 +112,6 @@ my_mkdir(MINODE* pip, char* name)
     pip->dirty = 1;
 
     iput(pip);
-}
-
-
-int
-is_exist (MINODE* mip, char* name)
-{
-    int i;
-    char *cp;
-    char buf[BLOCK_SIZE];
-    char temp[128];
-
-    ip = &(mip->INODE);
-
-    for (i = 0; i < 12 && ip->i_block[i]; i++)
-    {
-        get_block(mip->dev, ip->i_block[i], buf);
-        dp = (DIR*)buf;
-        cp = buf;
-
-        while (cp < (buf + BLOCK_SIZE))
-        {
-            strncpy(temp, dp->name, dp->name_len);
-            temp[dp->name_len] = 0;
-            if (0 == strcmp(name, temp))
-            {
-                return -1;
-            }
-            cp += dp->rec_len;
-            dp = (DIR*)cp;
-        }
-    }
-    return 0;
 }
 
 
@@ -169,8 +135,6 @@ make_dir()
 
     parent = dir_name(pathName);
     child = base_name(pathName);
-
-    printf("%s %s\n", parent, child);
 
     if (0 == strcmp(child, "."))
     {

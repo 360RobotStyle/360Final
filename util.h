@@ -58,6 +58,8 @@ u32 getino (int* dev, char* pathname);
  */
 u32 search (MINODE* mip, char* name);
 
+int is_exist (MINODE* mip, char* name);
+
 MINODE* iget (int dev, unsigned long ino);
 
 /*
