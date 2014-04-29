@@ -2,22 +2,6 @@
 #include "../util.h"
 
 
-
-ialloc (int dev)
-{
-    int i;
-    char buf[BLOCK_SIZE];
-
-    get_block(dev, IBITMAP, buf);
-    //for (i = 0; i < NINODES
-}
-
-balloc (int dev)
-{
-
-}
-
-
 static int
 my_mkdir(MINODE* pip, char* name)
 {

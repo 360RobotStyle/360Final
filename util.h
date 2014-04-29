@@ -97,6 +97,26 @@ void idealloc(int dev, u32 ino);
  */
 void bdealloc(int dev, u32 blk);
 
+/*
+ * Decrement the free inode count in superblock and group descriptor
+ */
+void decFreeInodes(int dev);
+
+/*
+ * Allocate inode
+ */
+int ialloc (int dev);
+
+/*
+ * Decrement the free blocks count in superblock and group descriptor
+ */
+void decFreeBlocks(int dev);
+
+/*
+ * Allocate block
+ */
+int balloc (int dev);
+
 int TST_bit (char buf[], int BIT);
 
 int SET_bit (char buf[], int BIT);

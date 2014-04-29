@@ -288,13 +288,13 @@ void idealloc(int dev, u32 ino)
 
     // get inode bitmap block
     get_block(dev, IBITMAP, buf);      // assume Imap is block 4
-    //clr_bit(buf, ino-1);         // assume you have clr_bit() function 
+    //clr_bit(buf, ino-1);         // assume you have clr_bit() function
 
     // write buf back
     put_block(dev, IBITMAP, buf);
 
     // update free inode count in SUPER and GD
-    incFreeInodes(dev);         // assume you write this function 
+    incFreeInodes(dev);         // assume you write this function
 }
 
 void incFreeBlocks(int dev)
@@ -321,13 +321,97 @@ void bdealloc(int dev, u32 blk)
 
     // get block bitmap block
     get_block(dev, BBITMAP, buf);      // assume Bmap is block 3
-    //clr_bit(buf, blk-1);         // assume you have clr_bit() function 
+    //clr_bit(buf, blk-1);         // assume you have clr_bit() function
 
     // write buf back
     put_block(dev, BBITMAP, buf);
 
     // update free block count in SUPER and GD
-    incFreeBlocks(dev);         // assume you write this function 
+    incFreeBlocks(dev);         // assume you write this function
+}
+
+void decFreeInodes(int dev)
+{
+    char buf[BLOCK_SIZE];
+
+    // Fix inode count in super block.
+    get_block(dev, SUPERBLOCK, buf);
+    sp = (SUPER *) buf;
+    sp->s_free_inodes_count--;
+    put_block(dev, SUPERBLOCK, buf);
+
+    // Fix inode count in group descriptor block.
+    get_block(dev, GDBLOCK, buf);
+    gp = (GD *) buf;
+    gp->bg_free_inodes_count--;
+    put_block(dev, GDBLOCK, buf);
+}
+
+int ialloc (int dev)
+{
+    int i;
+    char buf[BLOCK_SIZE];
+    u32 ninodes; // FIXME needs to be replaced from MOUNT struct ninodes
+
+    get_block(dev, SUPERBLOCK, buf);
+    sp = (SUPER*)buf;
+    ninodes = sp->s_inodes_count;
+
+    get_block(dev, IBITMAP, buf);
+    for (i = 0; i < ninodes; i++)
+    {
+        if (TST_bit(buf, i) == 0)
+        {
+            SET_bit(buf, i);
+            put_block(dev, IBITMAP, buf);
+
+            decFreeInodes(dev);
+            return (i + 1);
+        }
+    }
+    return 0;
+}
+
+void decFreeBlocks(int dev)
+{
+    char buf[BLOCK_SIZE];
+
+    // Fix block count in super block.
+    get_block(dev, SUPERBLOCK, buf);
+    sp = (SUPER *) buf;
+    sp->s_free_blocks_count--;
+    put_block(dev, SUPERBLOCK, buf);
+
+    // Fix block count in group descriptor block.
+    get_block(dev, GDBLOCK, buf);
+    gp = (GD *) buf;
+    gp->bg_free_blocks_count--;
+    put_block(dev, GDBLOCK, buf);
+}
+
+int balloc (int dev)
+{
+    int i;
+    char buf[BLOCK_SIZE];
+    u32 nblocks; //FIXME needs to replaced from MOUNT struct bnodes
+
+    get_block(dev, SUPERBLOCK, buf);
+    sp = (SUPER*)buf;
+    nblocks = sp->s_blocks_count;
+
+    get_block(dev, BBITMAP, buf);
+    for (i = 0; i < nblocks; i++)
+    {
+        if (TST_bit(buf, i) == 0)
+        {
+            SET_bit(buf, i);
+            put_block(dev, IBITMAP, buf);
+
+            decFreeBlocks(dev);
+            return (i + 1);
+        }
+    }
+    return 0;
 }
 
 int TST_bit (char buf[], int BIT)
