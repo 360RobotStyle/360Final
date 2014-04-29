@@ -263,3 +263,18 @@ int findino (MINODE* mip, u32* myino, u32* parent)
 
     return 0;
 }
+
+int TST_bit (char buf[], int BIT)
+{
+    return buf[BIT/8] & (1 << (BIT%8));
+}
+
+int SET_bit (char buf[], int BIT)
+{
+    return buf[BIT/8] |= (1 << (BIT%8));
+}
+
+int CLR_bit (char buf[], int BIT)
+{
+    return buf[BIT/8] &= ~(1 << (BIT%8));
+}
