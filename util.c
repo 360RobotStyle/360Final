@@ -263,3 +263,70 @@ int findino (MINODE* mip, u32* myino, u32* parent)
 
     return 0;
 }
+
+void incFreeInodes(int dev)
+{
+    char buf[BLOCK_SIZE];
+
+    // Fix inode count in super block.
+    get_block(dev, SUPERBLOCK, buf);
+    sp = (SUPER *) buf;
+    sp->s_free_inodes_count++;
+    put_block(dev, SUPERBLOCK, buf);
+
+    // Fix inode count in group descriptor block.
+    get_block(dev, GDBLOCK, buf);
+    gp = (GD *) buf;
+    gp->bg_free_inodes_count++;
+    put_block(dev, GDBLOCK, buf);
+}
+
+void idealloc(int dev, u32 ino)
+{
+    int i;
+    char buf[BLOCK_SIZE];
+
+    // get inode bitmap block
+    get_block(dev, IBITMAP, buf);      // assume Imap is block 4
+    //clr_bit(buf, ino-1);         // assume you have clr_bit() function 
+
+    // write buf back
+    put_block(dev, IBITMAP, buf);
+
+    // update free inode count in SUPER and GD
+    incFreeInodes(dev);         // assume you write this function 
+}
+
+void incFreeBlocks(int dev)
+{
+    char buf[BLOCK_SIZE];
+
+    // Fix block count in super block.
+    get_block(dev, SUPERBLOCK, buf);
+    sp = (SUPER *) buf;
+    sp->s_free_blocks_count++;
+    put_block(dev, SUPERBLOCK, buf);
+
+    // Fix block count in group descriptor block.
+    get_block(dev, GDBLOCK, buf);
+    gp = (GD *) buf;
+    gp->bg_free_blocks_count++;
+    put_block(dev, GDBLOCK, buf);
+}
+
+void bdealloc(int dev, u32 blk)
+{
+    int i;
+    char buf[BLOCK_SIZE];
+
+    // get block bitmap block
+    get_block(dev, BBITMAP, buf);      // assume Bmap is block 3
+    //clr_bit(buf, blk-1);         // assume you have clr_bit() function 
+
+    // write buf back
+    put_block(dev, BBITMAP, buf);
+
+    // update free block count in SUPER and GD
+    incFreeBlocks(dev);         // assume you write this function 
+}
+

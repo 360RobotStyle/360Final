@@ -78,4 +78,23 @@ int findmyname (MINODE* parent, u32 myino, char* myname);
  */
 int findino (MINODE* mip, u32* myino, u32* parent);
 
+/*
+ * Increment the free inode count in superblock and group descriptor.
+ */
+void incFreeInodes(int dev);
+/*
+ * Increment the free block count in superblock and group descriptor.
+ */
+void incFreeBlocks(int dev);
+
+/*
+ * Deallocate inode.
+ */
+void idealloc(int dev, u32 ino);
+
+/*
+ * Deallocate block.
+ */
+void bdealloc(int dev, u32 blk);
+
 #endif

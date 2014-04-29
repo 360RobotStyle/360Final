@@ -31,8 +31,10 @@ DIR   *dp;
 #define ROOT_INODE      2
 
 // Default dir and regular file mode
-#define DIR_MODE        0040777
-#define FILE_MODE       0100644
+//#define DIR_MODE        0040777 // XXX I think KC spoofed us here? -Cameron
+#define DIR_MODE        0040755
+//#define FILE_MODE       0100644 // XXX I think KC spoofed us here? -Cameron
+#define FILE_MODE       0177777 // XXX I think KC spoofed us here? -Cameron
 #define SUPER_MAGIC     0xEF53
 #define SUPER_USER      0
 
