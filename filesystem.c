@@ -19,9 +19,9 @@ static command command_table[] =
     //{"symlink", symlink}, // Cameron
     {"rm",      do_rm}, // Cameron
     {"chmod",   chmod_file}, // Gabe
-    //{"chown",   chown_file}, // Gabe
+    {"chown",   chown_file}, // Gabe
     {"stat",    stat_file}, // Gabe
-    //{"touch",   touch_file}, // Gabe
+    {"touch",   touch_file}, // Gabe
 
     // LEVEL 2
     {"open",    do_open}, // Cameron

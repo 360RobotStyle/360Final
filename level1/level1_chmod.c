@@ -122,6 +122,4 @@ chmod_file()
     {
         printf("chmod : invalid parameter\n");
     }
-
-
 }
