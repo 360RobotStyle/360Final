@@ -13,7 +13,7 @@ static command command_table[] =
     {"pwd",     do_pwd}, // Cameron
     {"ls",      do_ls}, // Gabe
     {"rmdir",   do_rmdir}, // Cameron
-    //{"creat",   creat_file}, // Gabe
+    {"creat",   creat_file}, // Gabe
     {"link",    do_link}, // Cameron
     {"unlink",  do_unlink}, // Cameron
     //{"symlink", symlink}, // Cameron
