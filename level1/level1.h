@@ -4,6 +4,7 @@
 #include "../filesystem.h"
 #include "../util.h"
 
+#include "level1_chgrp.c"
 #include "level1_chmod.c"
 #include "level1_chown.c"
 #include "level1_creat.c"

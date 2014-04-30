@@ -27,6 +27,7 @@ chown_file()
         else
             mip = iget(dev, ino);
 
+        // FIXME
         mip->INODE.i_uid = parameter[0]=='0' ? 0 : 1;
         mip->dirty = 1;
 

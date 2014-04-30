@@ -161,4 +161,6 @@ int rm_child(MINODE *pip, char *my_name);
 int put_rec(MINODE *pip, char *name, u32 ino);
 int del_rec(MINODE *pip, char *name);
 
+void err_printf(char* msg);
+
 #endif

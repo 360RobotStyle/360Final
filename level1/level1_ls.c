@@ -67,7 +67,7 @@ do_ls()
 
     if ((u32)-1 == ino)
     {
-        printf("it is not a directory\n");
+        err_printf("ls : it is not a directory\n");
         return;
     }
     printf("\n");
@@ -86,7 +86,8 @@ do_ls()
             strncpy(temp, dp->name, dp->name_len);
             temp[dp->name_len] = 0;
             file_info(dev, dp->inode);
-            printf("%s %u\n", temp, dp->inode);
+            //printf("%3u %s\n", dp->inode, temp); // with inode
+            printf("%s\n", temp);
             cp += dp->rec_len;
             dp = (DIR*)cp;
         }

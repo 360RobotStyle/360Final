@@ -4,15 +4,15 @@
 void
 menu()
 {
-    printf("******************** Menu *******************\n"
-           "mkdir     creat     mount     umount    rmdir\n"
+    printf("\033[34m******************** Menu *******************\n"
+           "\033[33mmkdir     creat     mount     umount    rmdir\n"
            "cd        ls        pwd       stat      rm\n"
            "link      unlink    symlink   chmod     chown   touch\n"
            "open      pfd       lseek     rewind    close\n"
            "read      write     cat       cp        mv\n"
            "cs        fork      ps        kill      quit\n"
-           "=============   Usage Examples ==============\n"
-           "mkdir  filename\n"
+           "\033[34m=============   Usage Examples ==============\n"
+           "\033[33mmkdir  filename\n"
            "mount  filesys   /mnt\n"
            "chmod  filename  0644\n"
            "chown  filename  uid\n"
@@ -24,5 +24,5 @@ menu()
            "fork   (fork child process)\n"
            "ps     (show process queue as Pi[uid]==>}\n"
            "kill   pid   (kill a process)\n"
-           "*********************************************\n");    
+           "\033[34m*********************************************\n\033[0m");
 }

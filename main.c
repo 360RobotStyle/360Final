@@ -10,6 +10,7 @@ int main (int argc, char* argv[])
     char line[128], cname[64];
 
     init();
+    printf("Type \033[33mmenu\033[0m to view all commands\n");
 
     while (1)
     {
@@ -38,7 +39,7 @@ int main (int argc, char* argv[])
         }
         else
         {
-            printf("invalid command\n");
+            err_printf("invalid command\n");
         }
     }
 

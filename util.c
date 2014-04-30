@@ -669,3 +669,8 @@ del_rec(MINODE *pip, char *name)
     }
     return 0;
 }
+
+void err_printf(char* msg)
+{
+    printf("\033[31m%s\033[0m", msg);
+}

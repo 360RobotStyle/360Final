@@ -20,13 +20,14 @@ static command command_table[] =
     {"rm",      do_rm}, // Cameron
     {"chmod",   chmod_file}, // Gabe
     {"chown",   chown_file}, // Gabe
+    {"chgrp",   chgrp_file}, // Gabe
     {"stat",    stat_file}, // Gabe
     {"touch",   touch_file}, // Gabe
 
     // LEVEL 2
     {"open",    do_open}, // Cameron
     //{"close",   do_close}, // Cameron
-    //{"pfd",     pfd},
+    {"pfd",     pfd},
     //{"lseek",   do_lseek}, // Cameron
     //{"rewind",  access_file},
     //{"read",    read_file},
@@ -77,7 +78,7 @@ void mount_root ()
 
     // Prompt user
     printf("mounting root\n");
-    printf("enter rootdev name (RETURN for /dev/fd0): ");
+    printf("\033[2menter rootdev name (RETURN for /dev/fd0): \033[0m");
     fgets(device, 128, stdin);
     device[strlen(device) - 1] = 0;
 
@@ -85,7 +86,7 @@ void mount_root ()
     fd = open(device, O_RDWR);
     if (fd < 0)
     {
-        fprintf(stderr, "error: can't open root device\n");
+        err_printf("error: can't open root device\n");
         exit(-1);
     }
 
@@ -94,7 +95,7 @@ void mount_root ()
     gp = (GD*)buf;
     if (INODEBLOCK != gp->bg_inode_table)
     {
-        fprintf(stderr, "error: inode begin block not equal to %d\n", INODEBLOCK);
+        err_printf("error: inode begin block\n");
         exit(-1);
     }
 
@@ -109,7 +110,7 @@ void mount_root ()
     sp = (SUPER*)buf;
     if (SUPER_MAGIC != sp->s_magic)
     {
-        fprintf(stderr, "error: not ext2 filesystem\n");
+        err_printf("error: not ext2 filesystem\n");
         exit(-1);
     }
     printf("nblocks=%d  bfree=%d   ninodes=%d  ifree=%d\n",
@@ -140,86 +141,6 @@ command_func findCmd(char* cname)
     // Return the function pointer or NULL.
     return curr_command->func;
 }
-
-//INODE* _iget(int fd, int ino)
-//{
-    //int blk, offset;
-    //char buf[BLOCK_SIZE];
-
-    //blk = (ino - 1)/8 + InodesBeginBlock;
-    //offset = (ino - 1) % 8;
-    ////printf("ino %d  blk %d  offset %d\n", ino, blk, offset);
-
-    //get_block(fd, blk, buf);
-    //ip = (INODE*)buf + offset;
-    //myinode = *ip;
-
-    //return &myinode;
-//}
-
-
-
-
-//void iput (MINODE* mip)
-//{
-    //int blk, offset;
-
-    //// Dispose of an minode pointed by mip:
-    //mip->refCount--;
-
-    //if (mip->refCount > 0) { return; }
-    //if (!mip->dirty) { return; }
-
-
-    //if (mip->refCount == 0 && mip->dirty)
-    //{
-        //// Write INODE back to the disk by its (dev, ino)
-        //blk = (mip->ino - 1)/8 + InodesBeginBlock;
-        //offset = (mip->ino - 1) % 8;
-        //lseek(mip->dev, (long)(blk*BLOCK_SIZE), 0);
-        //write(mip->dev, mip->inode, BLOCK_SIZE);
-        //mip->dirty = 0;
-    //}
-//}
-
-
-//int change_dir (char* pathname)
-//{
-    //int ino, dev;
-    //MINODE* mip;
-
-    //if (pathname[0] == 0)
-    //{
-        //iput(running->cwd); // dispose of cwd
-        //running->cwd = root;
-        //root->refCount++;
-        //return GOOD;
-    //}
-
-    //ino = getino(&dev, pathname); // DOUBLE CHECK THIS CODE
-
-    //if (ino == 0)
-    //{
-        //printf("Directory not found\n");
-        //return BAD;
-    //}
-
-    //mip = iget(dev, ino);
-
-    //// Check it's a directory
-    //if ((mip->inode.i_mode & 0040000) != 0040000)
-    //{
-        //iput(mip);
-        //printf("Not a directory\n");
-        //return BAD;
-    //}
-
-    //// Dispose of original running->cwd
-    //running->cwd = mip;
-
-    //return GOOD;
-//}
-
 
 
 
