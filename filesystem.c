@@ -30,10 +30,10 @@ static command command_table[] =
     //{"lseek",   do_lseek}, // Cameron
     //{"rewind",  access_file},
     //{"read",    read_file},
-    //{"write",   write_file},
+    //{"write",   write_file}, // Gabe
     //{"cat",     cat_file},
-    //{"cp",      cp_file},
-    //{"mv",      mv_file},
+    //{"cp",      cp_file}, // Gabe
+    //{"mv",      mv_file}, // Gabe
 
     // LEVEL 3
     //{"mount",   mount},
