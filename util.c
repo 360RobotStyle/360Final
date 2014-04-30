@@ -468,7 +468,7 @@ real_rec_len(int name_len)
 }
 
 int
-put_rec(MINODE *pip, char *name)
+put_rec(MINODE *pip, char *name, u32 ino)
 {
     int new_rec_len;
     int i;
@@ -499,6 +499,7 @@ put_rec(MINODE *pip, char *name)
                     dp->rec_len = new_rec_len;
                     dp->name_len = strlen(name);
                     strncpy(dp->name, name, strlen(name));
+                    dp->inode = ino;
                     put_block(pip->dev, (pip->INODE).i_block[i], buf);
                     return 0;
                 }
@@ -515,6 +516,7 @@ put_rec(MINODE *pip, char *name)
         dp->rec_len = BLOCK_SIZE;
         dp->name_len = strlen(name);
         strncpy(dp->name, name, strlen(name));
+        dp->inode = ino;
         put_block(pip->dev, (pip->INODE).i_block[i], buf);
         return 0;
     }

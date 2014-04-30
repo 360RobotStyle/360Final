@@ -58,54 +58,55 @@ my_mkdir(MINODE* pip, char* name)
     need_length = 4 * ((8 + strlen(name) + 3) / 4);
 
     // read parent's data block into buf[]
-    ip = &(pip->INODE);
-    for (i = 0; i < 12 &&  ip->i_block[i]; i++)
-    {
-        get_block(pip->dev, ip->i_block[i], buf);
-        cp = buf;
-        dp = (DIR*)buf;
-        while (cp < (buf + BLOCK_SIZE))
-        {
-            dp = (DIR*)cp;
-            cp += dp->rec_len;
-        }
-        cp -= dp->rec_len;
+    //ip = &(pip->INODE);
+    put_rec(pip, name, inumber);
+    //for (i = 0; i < 12 &&  ip->i_block[i]; i++)
+    //{
+        //get_block(pip->dev, ip->i_block[i], buf);
+        //cp = buf;
+        //dp = (DIR*)buf;
+        //while (cp < (buf + BLOCK_SIZE))
+        //{
+            //dp = (DIR*)cp;
+            //cp += dp->rec_len;
+        //}
+        //cp -= dp->rec_len;
 
-        // dp now points to the LAST entry
-        ideal_length = 4 * ((8 + dp->name_len + 3) / 4);
-        rec_len = dp->rec_len;
-        if (rec_len - ideal_length >= need_length)
-        {
-            // enter the new entry as the LAST entry and trim the previous
-            // entry to its ideal length
-            dp->rec_len = ideal_length;
-            cp += dp->rec_len;
-            dp = (DIR*)cp;
-            dp->inode = inumber;
-            printf("PIP ino %u\n", dp->inode);
-            dp->name_len = strlen(name);
-            strncpy(dp->name, name, dp->name_len);
-            dp->rec_len = rec_len - ideal_length;
-            put_block(pip->dev, ip->i_block[i], buf);
-            break;
-        }
-        else
-        {
-            if (0 == ip->i_block[i + 1])
-            {
-                // allocate a new data block
-                // enter the new entry as the first entry in the new data block
-                get_block(pip->dev, ip->i_block[i + 1], buf);
-                dp = (DIR*)buf;
-                dp->inode = inumber;
-                strncpy(dp->name, ".", 1);
-                dp->name_len = 1;
-                dp->rec_len = BLOCK_SIZE;
-                put_block(pip->dev, ip->i_block[i + 1], buf);
-                break;
-            }
-        }
-    }
+        //// dp now points to the LAST entry
+        //ideal_length = 4 * ((8 + dp->name_len + 3) / 4);
+        //rec_len = dp->rec_len;
+        //if (rec_len - ideal_length >= need_length)
+        //{
+            //// enter the new entry as the LAST entry and trim the previous
+            //// entry to its ideal length
+            //dp->rec_len = ideal_length;
+            //cp += dp->rec_len;
+            //dp = (DIR*)cp;
+            //dp->inode = inumber;
+            //printf("PIP ino %u\n", dp->inode);
+            //dp->name_len = strlen(name);
+            //strncpy(dp->name, name, dp->name_len);
+            //dp->rec_len = rec_len - ideal_length;
+            //put_block(pip->dev, ip->i_block[i], buf);
+            //break;
+        //}
+        //else
+        //{
+            //if (0 == ip->i_block[i + 1])
+            //{
+                //// allocate a new data block
+                //// enter the new entry as the first entry in the new data block
+                //get_block(pip->dev, ip->i_block[i + 1], buf);
+                //dp = (DIR*)buf;
+                //dp->inode = inumber;
+                //strncpy(dp->name, ".", 1);
+                //dp->name_len = 1;
+                //dp->rec_len = BLOCK_SIZE;
+                //put_block(pip->dev, ip->i_block[i + 1], buf);
+                //break;
+            //}
+        //}
+    //}
 
     pip->refCount++;
     pip->INODE.i_atime = time(0L);

@@ -10,7 +10,7 @@ do_link()
     u32 dst_ino;
     u32 src_ino;
     int dev;
-    int i;
+    int i, ino;
 
     // We're using pathName as first file path and parameter as second file path.
 
@@ -43,15 +43,15 @@ do_link()
         return;
     }
     sip = iget(dev, 2); // This is actually the parent of the link src.
-
-    if (-1 == put_rec(sip, base_name(parameter)))
+    ino = ialloc(dev);
+    if (-1 == put_rec(sip, base_name(parameter), ino))
     {
         printf("Didn't succeed in placing '%s' record\n", parameter);
     }
 
     printf("We're succeeding so far\n");
 
-    // Do we have 
+    // Do we have
 }
 //void
 //do_ls()
