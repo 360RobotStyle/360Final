@@ -49,7 +49,7 @@ rm_child(MINODE *pip, char *my_name)
         printf("can't remove . or .. directories\n");
         return -1;
     }
-    for (i = 0; i < 12, (pip->INODE).i_block[i]; i++)
+    for (i = 0; i < 12 && (pip->INODE).i_block[i]; i++)
     {
         printf("checking for child to remove in rec block %i\n", (int) (pip->INODE).i_block[i]);
         // Load the next rec block.

@@ -3,6 +3,23 @@
 
 #include "type.h"
 
+#define DEBUG (1)
+
+#ifndef DEBUG
+#define DEBUG (0)
+#endif
+
+// Debug printing macro. Enable it by defining DEBUG as 1.
+#define DEBUG_PRINT(...) \
+    do \
+    { \
+        if (DEBUG) \
+        { \
+            fprintf(stderr, "%s(), line %i: ", __func__, __LINE__); \
+            fprintf(stderr, __VA_ARGS__); \
+        } \
+    } while (0)
+
 typedef unsigned long u32;
 
 // type.h
@@ -51,6 +68,12 @@ char* base_name (char* pathname);
  * the returned value is its inumber and dev is its dev number.
  */
 u32 getino (int* dev, char* pathname);
+
+/*
+ * Use getino to find the parent inode number, get the parent minode, and then
+ * get the file.
+ */
+u32 getfileino(MINODE *pip, char* name);
 
 /*
  * Searches the data blocks of a DIR inode (inside a MINODE[]) for name

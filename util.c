@@ -66,6 +66,44 @@ char* base_name(char* pathname)
 }
 
 
+u32 getfileino(MINODE *pip, char* name)
+{
+    char buf[BLOCK_SIZE];
+    int i;
+    char replace;
+    MINODE *mip;
+    u32 ret;
+    for (i = 0; i < 12 && (pip->INODE).i_block[i]; i++)
+    {
+        dp = (DIR *) buf;
+        while ((char *) dp < buf + BLOCK_SIZE && dp->rec_len)
+        {
+            replace = dp->name[dp->name_len];
+            dp->name[dp->name_len] = '\0';
+            printf("looking at record '%s'\n", dp->name);
+            if (0 == strcmp(dp->name, name))
+            {
+                ret = dp->inode;
+                mip = iget(pip->dev, dp->inode);
+                if (FILE_MODE != (MASK_MODE & (mip->INODE).i_mode))
+                {
+                    iput(mip);
+                    ret = -1;
+                }
+                else
+                {
+                    printf("returning '%s'\n\n", dp->name);
+                }
+                dp->name[dp->name_len] = replace;
+                return ret;
+            }
+            dp->name[dp->name_len] = replace;
+            dp = (DIR *) (((char *) dp) + dp->rec_len);
+        }
+    }
+    return -1;
+}
+
 u32 getino (int* dev, char* pathname)
 {
 
@@ -88,7 +126,7 @@ u32 getino (int* dev, char* pathname)
     strncpy(pathNameTokenized, pathname, strlen(pathname) + 1);
     tokenCount = token_path(pathNameTokenized, pathNameTokenPtrs);
 
-    if (tokenCount == 0) return 1;
+    if (tokenCount == 0) return -1;
 
     for (i = 0; i < tokenCount; i++)
     {
@@ -96,7 +134,7 @@ u32 getino (int* dev, char* pathname)
         ino = search(mip, pathNameTokenPtrs[i]);
         *dev = mip->dev;
         if (1 == ino)
-            return 1;
+            return -1;
     }
 
     return ino;
@@ -131,7 +169,7 @@ u32 search (MINODE* mip, char* name)
 
             if (0 == strcmp(name, temp))
             {
-                if (EXT2_FT_DIR != dp->file_type) return 1; // Ensure it is a DIR
+                if (EXT2_FT_DIR != dp->file_type) return -1; // Ensure it is a DIR
                 //printf("found %s : ino = %d\n", temp, dp->inode);
                 return dp->inode;
             }
@@ -139,7 +177,7 @@ u32 search (MINODE* mip, char* name)
             dp = (DIR*)cp;
         }
     }
-    return 1;
+    return -1;
 }
 
 
@@ -477,7 +515,7 @@ put_rec(MINODE *pip, char *name, u32 ino)
     char buf[BLOCK_SIZE];
     new_rec_len = real_rec_len(strlen(name));
 
-    for (i = 0; i < 12, (pip->INODE).i_block[i]; i++)
+    for (i = 0; i < 12 && (pip->INODE).i_block[i]; i++)
     {
         get_block(pip->dev, (pip->INODE).i_block[i], buf);
         dp = (DIR *) buf;

@@ -74,13 +74,15 @@ do_ls()
 
     mip = iget(dev, ino);
     ip = &(mip->INODE);
+    i = 0;
 
-    //for (i = 0; i < 12 &&  ip->i_block[i]; i++)
-    //{
-        get_block(mip->dev, ip->i_block[i], buf);
+    for (i = 0; i < 12 &&  (mip->INODE).i_block[i]; i++)
+    {
+        get_block(mip->dev, (mip->INODE).i_block[i], buf);
         cp = buf;
         dp = (DIR*)buf;
-        while (cp < buf + BLOCK_SIZE)
+        printf("i_block is %i\n", (int) (mip->INODE).i_block[i]);
+        while (cp < buf + BLOCK_SIZE && dp->rec_len)
         {
             if (0 == dp->rec_len) break;
             strncpy(temp, dp->name, dp->name_len);
@@ -90,7 +92,7 @@ do_ls()
             cp += dp->rec_len;
             dp = (DIR*)cp;
         }
-    //}
+    }
 
     iput(mip);
 }

@@ -4,27 +4,46 @@
 void
 do_link()
 {
+    MINODE *dip_parent; // Destination
     MINODE *dip; // Destination
     MINODE *sip; // Source
     char buf[BLOCK_SIZE];
     u32 dst_ino;
     u32 src_ino;
     int dev;
-    int i, ino;
+    int i;
+    u32 ino;
 
     // We're using pathName as first file path and parameter as second file path.
 
-    dst_ino = getino(&dev, pathName);
+    if (dir_name(pathName))
+    {
+        dst_ino = getino(&dev, dir_name(pathName));
+    }
+    else
+    {
+        dst_ino = running->cwd->ino;
+        dev = running->cwd->dev;
+    }
     if (-1 == dst_ino)
     {
-        printf("Error: Could not find '%s'", pathName);
+        printf("Error: Could not find folder '%s'\n", dir_name(pathName));
         return;
     }
     dip = iget(dev, dst_ino);
+    dst_ino = getfileino(dip, base_name(pathName));
+    iput(dip);
+
+    if (-1 == dst_ino)
+    {
+        printf("Error: Could not find '%s'\n", pathName);
+        return;
+    }
+    dip = iget(dev, dst_ino); // FInally have the minode for the dest file.
 
     if (FILE_MODE != (MASK_MODE & (dip->INODE).i_mode))
     {
-        printf("Error: %s is not a file.\n", pathName);
+        printf("Error: %s is not a file. Has mode %x\n", pathName, (dip->INODE).i_mode);
         iput(dip);
         return;
     }
@@ -42,14 +61,22 @@ do_link()
         iput(dip);
         return;
     }
-    sip = iget(dev, 2); // This is actually the parent of the link src.
-    ino = ialloc(dev);
-    if (-1 == put_rec(sip, base_name(parameter), ino))
+    if (!(dir_name(parameter)))
     {
-        printf("Didn't succeed in placing '%s' record\n", parameter);
+        sip = iget(dip->dev, getino(&dev, ".")); // This is actually the parent of the link src.
     }
+    else
+    {
+        sip = iget(dip->dev, getino(&dev, dir_name(parameter))); // This is actually the parent of the link src.
+    }
+    ino = ialloc(dev);
+    //printf("allocated inode %i\n", (int) ino);
+    //if (-1 == put_rec(sip, base_name(parameter), ino))
+    //{
+    //    printf("Didn't succeed in placing '%s' record\n", parameter);
+    //}
 
-    printf("We're succeeding so far\n");
+    //printf("We're succeeding so far\n");
 
     // Do we have
 }
