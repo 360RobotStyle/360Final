@@ -14,6 +14,9 @@
 void
 chmod_file()
 {
+    u32 ino;
+    int dev;
+
     if (0 == strcmp(pathName, "") || 0 == strcmp(parameter, ""))
     {
         printf("chmod : missing argument and/or parameter\n");
@@ -33,4 +36,6 @@ chmod_file()
     {
         printf("chmod : invalid parameter\n");
     }
+
+    ino = getino(&dev, pathName);
 }

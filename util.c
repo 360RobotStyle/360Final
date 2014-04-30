@@ -88,15 +88,15 @@ u32 getino (int* dev, char* pathname)
     strncpy(pathNameTokenized, pathname, strlen(pathname) + 1);
     tokenCount = token_path(pathNameTokenized, pathNameTokenPtrs);
 
-    if (tokenCount == 0) return 1;
+    if (tokenCount == 0) return -1;
 
     for (i = 0; i < tokenCount; i++)
     {
         mip = iget(*dev, ino);
         ino = search(mip, pathNameTokenPtrs[i]);
         *dev = mip->dev;
-        if (1 == ino)
-            return 1;
+        if (-1 == ino)
+            return -1;
     }
 
     return ino;
@@ -131,7 +131,7 @@ u32 search (MINODE* mip, char* name)
 
             if (0 == strcmp(name, temp))
             {
-                if (EXT2_FT_DIR != dp->file_type) return 1; // Ensure it is a DIR
+                if (EXT2_FT_DIR != dp->file_type) return -1; // Ensure it is a DIR
                 //printf("found %s : ino = %d\n", temp, dp->inode);
                 return dp->inode;
             }
@@ -139,7 +139,7 @@ u32 search (MINODE* mip, char* name)
             dp = (DIR*)cp;
         }
     }
-    return 1;
+    return -1;
 }
 
 
@@ -173,7 +173,7 @@ int is_exist (MINODE* mip, char* name)
     return 0;
 }
 
-MINODE* iget (int dev, unsigned long ino)
+MINODE* iget (int dev, u32 ino)
 {
     int i;
     int blk, offset;

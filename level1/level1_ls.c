@@ -65,7 +65,7 @@ do_ls()
         ino = getino(&dev, pathName);
     }
     printf("INO: %ld\n", ino);
-    if (1 == ino)
+    if ((u32)-1 == ino)
     {
         printf("it is not a directory\n");
         return;
@@ -75,8 +75,8 @@ do_ls()
     mip = iget(dev, ino);
     ip = &(mip->INODE);
 
-    //for (i = 0; i < 12 &&  ip->i_block[i]; i++)
-    //{
+    for (i = 0; i < 12 &&  ip->i_block[i]; i++)
+    {
         get_block(mip->dev, ip->i_block[i], buf);
         cp = buf;
         dp = (DIR*)buf;
@@ -90,7 +90,7 @@ do_ls()
             cp += dp->rec_len;
             dp = (DIR*)cp;
         }
-    //}
+    }
 
     iput(mip);
 }
