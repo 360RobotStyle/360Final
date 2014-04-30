@@ -170,6 +170,7 @@ u32 search (MINODE* mip, char* name)
 
             if (0 == strcmp(name, temp))
             {
+                //printf("filetype %d\n", dp->file_type);
                 if (EXT2_FT_DIR != dp->file_type) return -1; // Ensure it is a DIR
                 //printf("found %s : ino = %d\n", temp, dp->inode);
                 return dp->inode;
@@ -271,8 +272,15 @@ void iput (MINODE* mip)
         blk = (mip->ino - 1)/8 + INODEBLOCK;
         offset = (mip->ino - 1) % 8;
 
-        lseek(mip->dev, (long)((blk * BLOCK_SIZE) + offset), 0);
-        write(mip->dev, mip->INODE, sizeof(INODE));
+        get_block(mip->dev, blk, buf);
+        INODE* ip_ = (INODE*)buf + offset;
+
+        //*ip = mip->INODE;
+        memcpy(ip_, &mip->INODE, sizeof(INODE));
+
+        //lseek(mip->dev, (long)((blk * BLOCK_SIZE) + offset), 0);
+        //write(mip->dev, mip->INODE, sizeof(INODE));
+        put_block(mip->dev, blk, buf);
     }
 }
 
@@ -292,18 +300,18 @@ int findmyname (MINODE* parent, u32 myino, char* myname)
         dp = (DIR*)buf;
         cp = buf;
 
-        printf("i=%d i_block[%d]=%d\n\n", i, i, ip->i_block[i]);
-        printf("   i_number rec_len name_len   name\n");
+        //printf("i=%d i_block[%d]=%d\n\n", i, i, ip->i_block[i]);
+        //printf("   i_number rec_len name_len   name\n");
 
         while (cp < (buf + BLOCK_SIZE))
         {
             strncpy(myname, dp->name, dp->name_len + 1);
             myname[dp->name_len] = 0;
-            printf("   %5d    %4d    %4d       %s\n", dp->inode, dp->rec_len, dp->name_len, myname);
+            //printf("   %5d    %4d    %4d       %s\n", dp->inode, dp->rec_len, dp->name_len, myname);
 
             if (dp->inode == myino)
             {
-                printf("found ino = %d\n", dp->inode);
+                //printf("found ino = %d\n", dp->inode);
                 return dp->inode;
             }
             cp += dp->rec_len;
@@ -438,6 +446,7 @@ int ialloc (int dev)
             return (i + 1);
         }
     }
+    printf("fs panic : out of INODES\n");
     return 0;
 }
 
