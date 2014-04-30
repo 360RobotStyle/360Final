@@ -2,7 +2,7 @@
 #include "../util.h"
 
 
-static int
+static void
 my_mkdir(MINODE* pip, char* name)
 {
     int i;

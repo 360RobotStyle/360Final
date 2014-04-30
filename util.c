@@ -182,7 +182,6 @@ u32 search (MINODE* mip, char* name)
     return -1;
 }
 
-
 int is_exist (MINODE* mip, char* name)
 {
     int i;
@@ -200,6 +199,7 @@ int is_exist (MINODE* mip, char* name)
 
         while (cp < (buf + BLOCK_SIZE))
         {
+            if (0 == dp->rec_len) break;
             strncpy(temp, dp->name, dp->name_len);
             temp[dp->name_len] = 0;
             if (0 == strcmp(name, temp))
