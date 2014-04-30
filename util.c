@@ -133,7 +133,7 @@ u32 getino (int* dev, char* pathname)
         mip = iget(*dev, ino);
         ino = search(mip, pathNameTokenPtrs[i]);
         *dev = mip->dev;
-        if (1 == ino)
+        if (-1 == ino)
             return -1;
     }
 
@@ -211,7 +211,7 @@ int is_exist (MINODE* mip, char* name)
     return 0;
 }
 
-MINODE* iget (int dev, unsigned long ino)
+MINODE* iget (int dev, u32 ino)
 {
     int i;
     int blk, offset;

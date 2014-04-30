@@ -65,7 +65,7 @@ do_ls()
         ino = getino(&dev, pathName);
     }
     printf("INO: %ld\n", ino);
-    if (1 == ino)
+    if ((u32)-1 == ino)
     {
         printf("it is not a directory\n");
         return;
