@@ -38,7 +38,7 @@ my_mkdir(MINODE* pip, char* name)
 
     // write . and .. entries into a buf[] of BLOCK_SIZE
     // write buf[] to the disk block allocated to this dir
-
+    //get_block(pip->dev, bnumber, buf);
     dp = (DIR*)buf;
     dp->inode = inumber;
     strncpy(dp->name, ".", 1);
@@ -58,13 +58,11 @@ my_mkdir(MINODE* pip, char* name)
     // enter name into parent's directory
     need_length = 4 * ((8 + strlen(name) + 3) / 4);
 
-
-    ip = &(pip->INODE);
     //put_rec(pip, name, inumber);
-    for (i = 0; i < 12 &&  ip->i_block[i]; i++)
+    for (i = 0; i < 12 && (pip->INODE).i_block[i]; i++)
     {
         // read parent's data block into buf[]
-        get_block(pip->dev, ip->i_block[i], buf);
+        get_block(pip->dev, (pip->INODE).i_block[i], buf);
         cp = buf;
         dp = (DIR*)buf;
         while (cp < (buf + BLOCK_SIZE))
@@ -85,26 +83,27 @@ my_mkdir(MINODE* pip, char* name)
             cp += dp->rec_len;
             dp = (DIR*)cp;
             dp->inode = inumber;
-            printf("PIP ino %u\n", dp->inode);
             dp->name_len = strlen(name);
+            dp->file_type = EXT2_FT_DIR;
             strncpy(dp->name, name, dp->name_len);
             dp->rec_len = rec_len - ideal_length;
-            put_block(pip->dev, ip->i_block[i], buf);
+            put_block(pip->dev, (pip->INODE).i_block[i], buf);
             break;
         }
         else
         {
-            if (0 == ip->i_block[i + 1])
+            if (0 == (pip->INODE).i_block[i + 1])
             {
                 // allocate a new data block
                 // enter the new entry as the first entry in the new data block
-                get_block(pip->dev, ip->i_block[i + 1], buf);
+                get_block(pip->dev, (pip->INODE).i_block[i + 1], buf);
                 dp = (DIR*)buf;
                 dp->inode = inumber;
-                strncpy(dp->name, ".", 1);
-                dp->name_len = 1;
+                dp->name_len = strlen(name);
+                dp->file_type = EXT2_FT_DIR;
+                strncpy(dp->name, name, dp->name_len);
                 dp->rec_len = BLOCK_SIZE;
-                put_block(pip->dev, ip->i_block[i + 1], buf);
+                put_block(pip->dev, (pip->INODE).i_block[i + 1], buf);
                 break;
             }
         }
