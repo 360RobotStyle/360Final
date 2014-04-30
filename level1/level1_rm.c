@@ -83,16 +83,43 @@ do_rm()
     int dev;
     printf("rm with pathname '%s'\n", pathName);
     // kc notes part 2
-    mino = getino(&dev, pathName);
-    if (-1 == mino)
+    if (dir_name(pathName))
     {
-        printf("'getino' failed for pathName '%s'\n", pathName);
+        pino = getino(&dev, dir_name(pathName));
+    }
+    else
+    {
+        pino = getino(&dev, ".");
+    }
+
+    if (-1 == pino)
+    {
+        printf("'getino' failed for pathName '%s'\n", dir_name(pathName));
         return;
     }
-    printf("inode number is %i\n", (int) mino);
+    pip = iget(dev, pino);
+    printf("parent inode number is %i\n", (int) pip->ino);
+
+
+    mino = getfileino(pip, base_name(pathName));
+    if (-1 == mino)
+    {
+        iput(pip);
+        printf("'getino' failed for file '%s'\n", base_name(pathName));
+        return;
+    }
+    printf("mino is %i\n", (int) mino);
 
     // kc notes part 3
     mip = iget(dev, mino);
+
+    if (1 < (mip->INODE).i_links_count)
+    {
+        printf("File has active links. Must unlink first.\n");
+        iput(pip);
+        iput(mip);
+        return;
+    }
 
     // FIXME part 4 and 5 are needed for level 3.
 

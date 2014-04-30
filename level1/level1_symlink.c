@@ -2,7 +2,7 @@
 #include "../util.h"
 
 void
-symlink()
+do_symlink()
 {
     
 }

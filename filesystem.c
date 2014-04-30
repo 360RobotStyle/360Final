@@ -8,23 +8,23 @@ static command command_table[] =
 {
     // LEVEL 1
     {"menu",    menu},
-    {"mkdir",   make_dir},
-    {"cd",      do_cd},
-    {"pwd",     do_pwd},
-    {"ls",      do_ls},
-    {"rmdir",   do_rmdir}, // cameron
-    //{"creat",   creat_file},
-    {"link",    do_link}, // cameron
-    //{"unlink",  unlink}, // cameron
-    //{"symlink", symlink}, // cameron
-    {"rm",      do_rm}, // cameron
-    {"chmod",   chmod_file},
-    //{"chown",   chown_file},
-    {"stat",    stat_file},
-    //{"touch",   touch_file},
+    {"mkdir",   make_dir}, // Gabe
+    {"cd",      do_cd}, // Cameron
+    {"pwd",     do_pwd}, // Cameron
+    {"ls",      do_ls}, // Gabe
+    {"rmdir",   do_rmdir}, // Cameron
+    //{"creat",   creat_file}, // Gabe
+    {"link",    do_link}, // Cameron
+    {"unlink",  do_unlink}, // Cameron
+    //{"symlink", symlink}, // Cameron
+    {"rm",      do_rm}, // Cameron
+    {"chmod",   chmod_file}, // Gabe
+    //{"chown",   chown_file}, // Gabe
+    {"stat",    stat_file}, // Gabe
+    //{"touch",   touch_file}, // Gabe
 
     // LEVEL 2
-    //{"open",    open_file},
+    //{"open",    open_file}, // Cameron
     //{"close",   close_file},
     //{"pfd",     pfd},
     //{"lseek",   lseek_file},

@@ -75,6 +75,7 @@ u32 getfileino(MINODE *pip, char* name)
     u32 ret;
     for (i = 0; i < 12 && (pip->INODE).i_block[i]; i++)
     {
+        get_block(pip->dev, (pip->INODE).i_block[i], buf);
         dp = (DIR *) buf;
         while ((char *) dp < buf + BLOCK_SIZE && dp->rec_len)
         {
@@ -519,7 +520,7 @@ put_rec(MINODE *pip, char *name, u32 ino)
     {
         get_block(pip->dev, (pip->INODE).i_block[i], buf);
         dp = (DIR *) buf;
-        while ((char *) dp < (buf + BLOCK_SIZE))
+        while ((char *) dp < (buf + BLOCK_SIZE) && dp->rec_len)
         {
             replace = dp->name[dp->name_len];
             dp->name[dp->name_len] = '\0';
@@ -561,3 +562,73 @@ put_rec(MINODE *pip, char *name, u32 ino)
     return -1;
 }
 
+int
+del_rec(MINODE *pip, char *name)
+{
+    int i;
+    char buf[BLOCK_SIZE];
+    int new_block;
+    char replace;
+    int shift = 0;
+    DIR *prev_dp;
+
+    for (i = 0; i < 12 && (pip->INODE).i_block[i]; i++)
+    {
+        get_block(pip->dev, (pip->INODE).i_block[i], buf);
+        shift = 0;
+        dp = (DIR *) buf;
+        while ((char *) dp < (buf + BLOCK_SIZE) && dp->rec_len)
+        {
+            replace = dp->name[dp->name_len];
+            dp->name[dp->name_len] = '\0';
+            if (shift)
+            {
+                if (((char *) dp) + dp->rec_len >= buf + BLOCK_SIZE - 1)
+                {
+                    printf("found final rec, increasing rec_len by %i bytes\n", shift);
+                    dp->rec_len += shift;
+                }
+                // We already deleted the record and we're shifting the rest
+                // down.
+                printf("Shifting record for '%s' down by %i bytes.\n", dp->name, shift);
+                dp->name[dp->name_len] = replace;
+                memmove(((char *) dp) - shift, dp, dp->rec_len);
+            }
+            else if (0 == strcmp(name, dp->name))
+            {
+                printf("We found a rec structure with name '%s'\n", dp->name);
+                dp->name[dp->name_len] = replace;
+                if (BLOCK_SIZE == dp->rec_len)
+                {
+                    printf("It's the only record on this block. Just deleting the block.\n");
+                    // This is the only dir record in the block. Just bdealloc
+                    // it.
+                    bdealloc(pip->dev, (pip->INODE).i_block[i]);
+                    (pip->INODE).i_block[i] = 0;
+                    (pip->INODE).i_size -= BLOCK_SIZE;
+                    return 0;
+                }
+                else if (((char *) dp) + dp->rec_len >= buf + BLOCK_SIZE)
+                {
+                    // No need to shift stuff, just extend the previous rec_len
+                    // to the end of the block.
+                    prev_dp->rec_len += dp->rec_len;
+                }
+                else
+                {
+                    // Shift all the directory records down.
+                    shift = dp->rec_len;
+                    printf("It's not the only record on this block. Shifting other records by %i.\n", shift);
+                }
+            }
+            else
+            {
+                dp->name[dp->name_len] = replace;
+            }
+            prev_dp = dp;
+            dp = (DIR *) (((char *) dp) + dp->rec_len);
+        }
+        put_block(pip->dev, (pip->INODE).i_block[i], buf);
+    }
+    return 0;
+}

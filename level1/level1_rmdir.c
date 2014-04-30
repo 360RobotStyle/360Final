@@ -54,6 +54,7 @@ rm_child(MINODE *pip, char *my_name)
         printf("checking for child to remove in rec block %i\n", (int) (pip->INODE).i_block[i]);
         // Load the next rec block.
         get_block(pip->dev, (pip->INODE).i_block[i], buf);
+        shift = 0;
         dp = (DIR *) buf;
 
         // Make sure we're still within the block.

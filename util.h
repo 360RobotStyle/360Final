@@ -158,5 +158,6 @@ int rm_child(MINODE *pip, char *my_name);
  * Insert a DIR into the directory blocks of pip->INODE.
  */
 int put_rec(MINODE *pip, char *name, u32 ino);
+int del_rec(MINODE *pip, char *name);
 
 #endif
