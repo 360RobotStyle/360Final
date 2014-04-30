@@ -256,6 +256,34 @@ MINODE* iget (int dev, u32 ino)
     return NULL; // minode is full!
 }
 
+void
+igetparentandfile(int *dev, MINODE **pip, MINODE **mip, char *name)
+{
+    u32 pino;
+    u32 mino;
+
+    pino = getino(dev, dir_name(name));
+    if (-1 == pino)
+    {
+        printf("Couldn't fine path '%s'\n", dir_name(name));
+        return;
+    }
+
+    *pip = iget(*dev, pino);
+    if (!(*pip))
+    {
+        *pip = NULL;
+        *mip = NULL;
+        return;
+    }
+    mino = getfileino(*pip, base_name(name));
+    if (!mino)
+    {
+        *mip = NULL;
+    }
+    *mip = iget(*dev, mino);
+}
+
 void iput (MINODE* mip)
 {
     int blk, offset;

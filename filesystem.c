@@ -24,10 +24,10 @@ static command command_table[] =
     //{"touch",   touch_file}, // Gabe
 
     // LEVEL 2
-    //{"open",    open_file}, // Cameron
-    //{"close",   close_file},
+    {"open",    do_open}, // Cameron
+    //{"close",   do_close}, // Cameron
     //{"pfd",     pfd},
-    //{"lseek",   lseek_file},
+    //{"lseek",   do_lseek}, // Cameron
     //{"rewind",  access_file},
     //{"read",    read_file},
     //{"write",   write_file},

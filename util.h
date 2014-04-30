@@ -84,6 +84,7 @@ u32 search (MINODE* mip, char* name);
 int is_exist (MINODE* mip, char* name);
 
 MINODE* iget (int dev, unsigned long ino);
+void igetparentandfile(int *dev, MINODE **pip, MINODE **mip, char *name);
 
 /*
  * This function releases MINODE[].
