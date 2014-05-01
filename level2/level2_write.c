@@ -9,6 +9,10 @@ mywrite(int fd, char* buf, int nbytes)
     int lbk, startByte, remain, blk;
     char wbuf[BLOCK_SIZE];
     char* cq;
+    int i, j;
+    int tbytes = 0;
+    u32 i_buf[BLOCK_SIZE / 4]; // indirect buf
+    u32 di_buf[BLOCK_SIZE / 4]; // double indirect buf
 
     cq = buf;
     oftp = running->fd[fd];
@@ -21,7 +25,6 @@ mywrite(int fd, char* buf, int nbytes)
         startByte = oftp->offset % BLOCK_SIZE;
 
         // Only works for DIRECT data blocks
-        // FIXME figure out how to write indirect and double-indirect blocks
 
         // direct block
         if (lbk < 12)
@@ -36,16 +39,42 @@ mywrite(int fd, char* buf, int nbytes)
         // indirect block
         else if (lbk >= 12 && lbk < 256 + 12)
         {
-            // FIXME
-
+            get_block(mip->dev, mip->INODE.i_block[12], (char *) i_buf);
+            for (i = 0; i < 256; i++)
+            {
+                if (0 == i_buf[i])
+                {
+                    i_buf[i] = balloc(mip->dev);
+                    blk = i_buf[i];
+                    put_block(mip->dev, mip->INODE.i_block[12], (char *) i_buf);
+                    break;
+                }
+            }
         }
         // double indirect block
         else
         {
-            // FIXME
+            blk = -1;
+            get_block(mip->dev, mip->INODE.i_block[13], (char *) i_buf);
+            for (i = 0; i < 256; i++)
+            {
+                if (i_buf[i])
+                {
+                    get_block(mip->dev, i_buf[i], (char *) di_buf);
+                    for (j = 0; j < 256; j++)
+                    {
+                        if (0 == di_buf[j])
+                        {
+                            di_buf[j] = balloc(mip->dev);
+                            blk = di_buf[j];
+                            put_block(mip->dev, i_buf[i], (char *) di_buf);
+                            break;
+                        }
+                    }
+                    if (blk != -1) break;
+                }
+            }
         }
-
-
 
         /* all cases come to here : write to the data block */
         get_block(mip->dev, blk, wbuf);    // read disk block into wbuf[]
@@ -57,6 +86,7 @@ mywrite(int fd, char* buf, int nbytes)
             *cp++ = *cq++;
             nbytes--;
             remain--;
+            tbytes++;
             oftp->offset++;
             if (oftp->offset > mip->INODE.i_size) // especially for RW|APPEND mode
                 mip->INODE.i_size++;
@@ -68,7 +98,7 @@ mywrite(int fd, char* buf, int nbytes)
     }
 
     mip->dirty = 1;
-    printf("wrote %d char into file fd=%d\n", nbytes, fd);
+    printf("wrote %d char into file fd=%d\n", tbytes, fd);
 }
 
 void
@@ -78,6 +108,7 @@ write_file()
     int nbytes;
     char buf[BLOCK_SIZE];
 
+    bzero(buf, BLOCK_SIZE);
     if (1 == strlen(pathName) && pathName[0] >= '0' && pathName[0] <= '9')
     {
         // 1) get fd
@@ -92,6 +123,7 @@ write_file()
             // 3) copy text string into a buf[] and get it's length as nbytes
             nbytes = strlen(parameter);
             strncpy(buf, parameter, nbytes + 1);
+            printf("%s\n", buf);
             mywrite(fd, buf, nbytes);
         }
         else

@@ -11,6 +11,8 @@ myread(int fd, char* buf, int nbytes)
     char* cp;
     char readbuf[BLOCK_SIZE];
     MINODE* mip;
+    u32 i_buf[BLOCK_SIZE / 4]; // indirect buf
+    u32 di_buf[BLOCK_SIZE / 4]; // double indirect buf
 
     oftp = running->fd[fd];
     mip = oftp->inodeptr;
@@ -36,15 +38,17 @@ myread(int fd, char* buf, int nbytes)
         // indirect block
         else if (lbk >= 12 && lbk < 256 + 12)
         {
-            blk = mip->INODE.i_block[12] + (lbk - 11);
-            printf("indirect lbk %d\n", blk);
+            get_block(mip->dev, mip->INODE.i_block[12], (char *) i_buf);
+            //printf("indirect %d\n", i_buf[lbk - 12]);
+            blk = i_buf[lbk - 12];
         }
         // double indirect block
         else
         {
-            // FIXME
-            blk = mip->INODE.i_block[13] + (2 + (lbk - 268));
-            printf("double indirect lbk %d\n", blk);
+            get_block(mip->dev, mip->INODE.i_block[13], (char *) i_buf);
+            get_block(mip->dev, i_buf[((lbk - 12) / 256) - 1], (char *) di_buf);
+            //printf ("double indirect %d\n", di_buf[(lbk - 12) - (256 * ((lbk - 12) / 256))]);
+            blk = di_buf[(lbk - 12) - (256 * ((lbk - 12) / 256))];
         }
 
         // get the data block into readbuf[BLOCK_SIZE]
@@ -54,6 +58,7 @@ myread(int fd, char* buf, int nbytes)
         cp = readbuf + startByte;
         remain = BLOCK_SIZE - startByte; // number of bytes remain in readbuf[]
 
+        // FIXME Optimize this code for EXTRA CREDIT
         while (remain > 0)
         {
             *cq++ = *cp++;           // copy byte into buf[]
