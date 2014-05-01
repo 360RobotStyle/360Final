@@ -12,6 +12,11 @@ do_close()
         return;
     }
     fd = atoi(pathName);
+    if (!fd && '0' != pathName[0])
+    {
+        printf("close : invalid file descriptor '%s'\n", pathName);
+        return;
+    }
     if ((!running->fd[fd]) || !(running->fd[fd]->refCount))
     {
         printf("File '%s' is not open.\n", pathName);

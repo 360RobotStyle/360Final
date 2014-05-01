@@ -35,7 +35,7 @@ static command command_table[] =
     {"write",   write_file}, // Gabe
     {"cat",     cat_file}, // Gabe
     {"cp",      cp_file}, // Gabe
-    //{"mv",      mv_file}, // Gabe
+    {"mv",      do_mv}, // Cameron
 
     // LEVEL 3
     //{"mount",   mount},
