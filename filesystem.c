@@ -26,13 +26,13 @@ static command command_table[] =
 
     // LEVEL 2
     {"open",    do_open}, // Cameron
-    //{"close",   do_close}, // Cameron
-    {"pfd",     pfd},
+    {"close",   do_close}, // Cameron
+    {"pfd",     pfd}, // Gabe
     //{"lseek",   do_lseek}, // Cameron
-    //{"rewind",  access_file},
-    {"read",    read_file},
+    //{"rewind",  access_file}, // Cameron
+    {"read",    read_file}, // Gabe
     {"write",   write_file}, // Gabe
-    //{"cat",     cat_file},
+    //{"cat",     cat_file}, // Gabe
     //{"cp",      cp_file}, // Gabe
     //{"mv",      mv_file}, // Gabe
 

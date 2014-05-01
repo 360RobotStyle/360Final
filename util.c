@@ -82,7 +82,7 @@ u32 getfileino(MINODE *pip, char* name)
         {
             replace = dp->name[dp->name_len];
             dp->name[dp->name_len] = '\0';
-            printf("looking at record '%s'\n", dp->name);
+            //printf("looking at record '%s'\n", dp->name);
             if (0 == strcmp(dp->name, name))
             {
                 ret = dp->inode;
@@ -92,10 +92,10 @@ u32 getfileino(MINODE *pip, char* name)
                     iput(mip);
                     ret = -1;
                 }
-                else
-                {
-                    printf("returning '%s'\n\n", dp->name);
-                }
+                //else
+                //{
+                //    printf("returning '%s'\n\n", dp->name);
+                //}
                 dp->name[dp->name_len] = replace;
                 return ret;
             }
@@ -264,7 +264,7 @@ igetparentandfile(int *dev, MINODE **pip, MINODE **mip, char *name)
     u32 mino;
 
     pino = getino(dev, dir_name(name));
-    if (-1 == pino)
+    if ((u32) -1 == pino)
     {
         printf("Couldn't fine path '%s'\n", dir_name(name));
         return;
@@ -278,9 +278,10 @@ igetparentandfile(int *dev, MINODE **pip, MINODE **mip, char *name)
         return;
     }
     mino = getfileino(*pip, base_name(name));
-    if (!mino)
+    if ((u32) -1 == mino)
     {
         *mip = NULL;
+        return;
     }
     *mip = iget(*dev, mino);
 }
