@@ -183,6 +183,83 @@ u32 search (MINODE* mip, char* name)
     return -1;
 }
 
+
+u32 search2 (MINODE* mip, char* name)
+{
+    int i;
+    char *cp;
+    char buf[BLOCK_SIZE];
+    char temp[128];
+
+    ip = &(mip->INODE);
+
+    for (i = 0; i < EXT2_NDIR_BLOCKS; i++)
+    {
+        if (0 == ip->i_block[i]) break;
+
+        get_block(mip->dev, ip->i_block[i], buf);
+        dp = (DIR*)buf;
+        cp = buf;
+
+        //printf("i=%d i_block[%d]=%d\n\n", i, i, ip->i_block[i]);
+        //printf("   i_number rec_len name_len   name\n");
+
+        while (cp < (buf + BLOCK_SIZE))
+        {
+            strncpy(temp, dp->name, dp->name_len + 1);
+            temp[dp->name_len] = 0;
+            //printf("   %5d    %4d    %4d       %s\n", dp->inode, dp->rec_len, dp->name_len, temp);
+
+            if (0 == strcmp(name, temp))
+            {
+                //printf("filetype %d\n", dp->file_type);
+                //if (EXT2_FT_DIR != dp->file_type) return -1; // Ensure it is a DIR
+                //printf("found %s : ino = %d\n", temp, dp->inode);
+                return dp->inode;
+            }
+            cp += dp->rec_len;
+            dp = (DIR*)cp;
+        }
+    }
+    return -1;
+}
+
+u32 getino2 (int* dev, char* pathname)
+{
+
+    MINODE* mip;
+    u32 ino;
+    int i, workingDev;
+    char* token;
+
+    if ('/' == pathname[0])
+    {
+        ino = root->ino;
+        *dev = root->dev;
+    }
+    else
+    {
+        ino = running->cwd->ino;
+        *dev = running->cwd->dev;
+    }
+
+    strncpy(pathNameTokenized, pathname, strlen(pathname) + 1);
+    tokenCount = token_path(pathNameTokenized, pathNameTokenPtrs);
+
+    if (tokenCount == 0) return -1;
+
+    for (i = 0; i < tokenCount; i++)
+    {
+        mip = iget(*dev, ino);
+        ino = search2(mip, pathNameTokenPtrs[i]);
+        *dev = mip->dev;
+        if (-1 == ino)
+            return -1;
+    }
+
+    return ino;
+}
+
 int is_exist (MINODE* mip, char* name)
 {
     int i;
@@ -262,6 +339,9 @@ igetparentandfile(int *dev, MINODE **pip, MINODE **mip, char *name)
 {
     u32 pino;
     u32 mino;
+
+    *pip = NULL;
+    *mip = NULL;
 
     pino = getino(dev, dir_name(name));
     if ((u32) -1 == pino)

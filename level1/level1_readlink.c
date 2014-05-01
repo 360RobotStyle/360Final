@@ -2,23 +2,29 @@
 #include "../util.h"
 
 void
-do_symlink()
+do_readlink()
 {
-    MINODE *pip_from;
-    MINODE *mip_from;
-    int dev_from;
 
-    MINODE *pip_to;
-    MINODE *mip_to;
-    int dev_to;
+    u32 mino;
+    MINODE *mip;
+    int dev;
 
-    if (60 > strlen(base_name(pathName)))
+    mino = getino2(&dev, pathName);
+    if (-1 == mino)
     {
-        printf("symlink error : Target file name must be less than 60 characters.\n");
+        printf("readlink : Symlink file '%s' does not exist\n", base_name(pathName));
         return;
     }
-    igetparentandfile(&dev_from, &pip_from, &mip_from, pathName);
-    igetparentandfile(&dev_to, &pip_to, &mip_to, pathName);
+    mip = iget(dev, mino);
+
+    if ((0xA000 & (mip->INODE).i_mode) != 0xA000)
+    {
+        iput(mip);
+        printf("readlink : File is not a symlink\n");
+        return;
+    }
+    printf("readlink : '%s' symlink to '%s'\n", pathName, (char *) &((mip->INODE).i_block[16]));
+    iput(mip);
 
 // 3. symlink oldNAME  newNAME    e.g. symlink /a/b/c /x/y/z
 // ASSUME: oldNAME has <= 60 chars, inlcuding the NULL byte.

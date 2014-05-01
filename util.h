@@ -71,6 +71,9 @@ char* base_name (char* pathname);
  */
 u32 getino (int* dev, char* pathname);
 
+// alternate version that doesn't fail for file types.
+u32 getino2 (int* dev, char* pathname);
+
 /*
  * Use getino to find the parent inode number, get the parent minode, and then
  * get the file.
@@ -82,6 +85,9 @@ u32 getfileino(MINODE *pip, char* name);
  * Assume DIRECT data blocks only.
  */
 u32 search (MINODE* mip, char* name);
+
+// alternate version that doesn't fail for file types.
+u32 search2 (MINODE* mip, char* name);
 
 int is_exist (MINODE* mip, char* name);
 

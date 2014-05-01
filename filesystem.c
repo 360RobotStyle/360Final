@@ -16,7 +16,8 @@ static command command_table[] =
     {"creat",   creat_file}, // Gabe
     {"link",    do_link}, // Cameron
     {"unlink",  do_unlink}, // Cameron
-    //{"symlink", symlink}, // Cameron
+    {"symlink", do_symlink}, // Cameron
+    {"readlink", do_readlink}, // Cameron
     {"rm",      do_rm}, // Cameron
     {"chmod",   chmod_file}, // Gabe
     {"chown",   chown_file}, // Gabe

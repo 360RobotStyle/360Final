@@ -20,5 +20,6 @@
 #include "level1_symlink.c"
 #include "level1_touch.c"
 #include "level1_unlink.c"
+#include "level1_readlink.c"
 
 #endif

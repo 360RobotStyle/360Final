@@ -12,9 +12,9 @@ file_info (int dev, u32 ino)
 
     mip = iget(dev, ino);
 
-    if ((mip->INODE.i_mode & 0100000) == 0100000) printf("-");
-    if ((mip->INODE.i_mode & 0040000) == 0040000) printf("d");
-    if ((mip->INODE.i_mode & 0120000) == 0120000) printf("l");
+    if ((mip->INODE.i_mode & 0120000) == 0120000) { printf("l");}
+    else if ((mip->INODE.i_mode & 0100000) == 0100000) { printf("-");}
+    else if ((mip->INODE.i_mode & 0040000) == 0040000) { printf("d");}
 
     if (mip->INODE.i_mode & (1 << 8)) printf("r"); else printf("-");
     if (mip->INODE.i_mode & (1 << 7)) printf("w"); else printf("-");
