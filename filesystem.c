@@ -31,7 +31,7 @@ static command command_table[] =
     //{"lseek",   do_lseek}, // Cameron
     //{"rewind",  access_file},
     //{"read",    read_file},
-    //{"write",   write_file}, // Gabe
+    {"write",   write_file}, // Gabe
     //{"cat",     cat_file},
     //{"cp",      cp_file}, // Gabe
     //{"mv",      mv_file}, // Gabe
@@ -56,13 +56,15 @@ void init ()
     proc[0].uid = SUPER_USER;
     proc[0].cwd = 0;
 
+    for (i = 0; i < NFD; i++) proc[0].fd[i] = 0;
+
     proc[1].uid = 1;
     proc[1].cwd = 0;
 
     running = &proc[0];
     readyQueue = &proc[1];
 
-    for (i = 0; i < NMINODES; i++) { minode[i].refCount = 0; }
+    for (i = 0; i < NMINODES; i++) minode[i].refCount = 0;
 
     root = 0;
 

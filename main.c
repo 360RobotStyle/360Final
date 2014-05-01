@@ -7,7 +7,7 @@ int main (int argc, char* argv[])
 {
     int i;
     command_func cmd;
-    char line[128], cname[64];
+    char cname[64];
 
     init();
     printf("Type \033[33mmenu\033[0m to view all commands\n");
@@ -15,13 +15,13 @@ int main (int argc, char* argv[])
     while (1)
     {
         bzero(cname, 64);
-        bzero(line, 64);
-        bzero(pathName, 256);
-        bzero(pathNameTokenized, 256);
-        bzero(pathNameTokenPtrs, 256);
+        bzero(line, 256);
+        bzero(pathName, 128);
+        bzero(pathNameTokenized, 128);
+        bzero(pathNameTokenPtrs, 128);
         bzero(baseName, 128);
         bzero(dirName, 128);
-        bzero(parameter, 128);
+        bzero(parameter, 64);
 
         printf("\033[2mP%d running: ", running->pid);
         printf("input command : \033[0m");

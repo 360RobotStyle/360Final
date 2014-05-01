@@ -2,19 +2,20 @@
 
 // util.h
 //extern INODE myinode;
-extern PROC proc[2];
+extern PROC proc[NPROC];
 extern PROC* running;
 extern PROC* readyQueue;
 extern MINODE minode[NMINODES];
 extern MINODE* root;
 
-extern char pathName[256];
-extern char parameter[256];
+extern char line[256];
+extern char pathName[128];
+extern char parameter[64];
 extern char baseName[128];
 extern char dirName[128];
 
-extern char pathNameTokenized[256];
-extern char *pathNameTokenPtrs[256];
+extern char pathNameTokenized[128];
+extern char *pathNameTokenPtrs[128];
 extern int tokenCount;
 
 
@@ -48,8 +49,8 @@ int token_path(char *pathname, char **token_ptrs)
 
 char* dir_name(char* pathname)
 {
-    char temp[256];
-    bzero(temp, 256);
+    char temp[128];
+    bzero(temp, 128);
     strncpy(temp, pathname, strlen(pathname) + 1);
     strncpy(dirName, dirname(temp), strlen(temp) + 1);
     return dirName;
@@ -58,8 +59,8 @@ char* dir_name(char* pathname)
 
 char* base_name(char* pathname)
 {
-    char temp[256];
-    bzero(temp, 256);
+    char temp[128];
+    bzero(temp, 128);
     strncpy(temp, pathname, strlen(pathname) + 1);
     strncpy(baseName, basename(temp), strlen(temp) + 1);
     return baseName;

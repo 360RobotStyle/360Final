@@ -48,7 +48,6 @@ DIR   *dp;
 #define NMINODES        100
 #define NMOUNT          10
 #define NPROC           10
-#define NPROC           10
 #define NFD             10
 #define NOFT            100
 

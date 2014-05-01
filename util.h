@@ -30,18 +30,19 @@ extern DIR   *dp;
 
 
 INODE myinode;
-PROC proc[2];
+PROC proc[NPROC];
 PROC* running;
 PROC* readyQueue;
 MINODE minode[NMINODES];
 MINODE* root;
 
-char pathName[256];
-char pathNameTokenized[256];
-char *pathNameTokenPtrs[256];
+char line[256];
+char pathName[128];
+char pathNameTokenized[128];
+char *pathNameTokenPtrs[128];
 int tokenCount;
 
-char parameter[256];
+char parameter[64];
 char baseName[128];
 char dirName[128];
 
