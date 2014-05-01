@@ -10,13 +10,10 @@ truncate(MINODE* mip)
 
     //i_blk = (u32 *) buf;
 
-    // 1) FIXME release mip->INODE's data blocks
-    // a file may have 12 direct blocks, 256 indirect blocks and 256* 256
-    // double indirect data blocks. release them all
-
     // Direct block
     for (i = 0; i < 12 /* && mip->INODE.i_block[i]*/; i++)
     {
+        // Deallocate each direct block.
         bdealloc(mip->dev, mip->INODE.i_block[i]);
         mip->INODE.i_block[i] = 0;
     }
@@ -26,12 +23,11 @@ truncate(MINODE* mip)
         get_block(mip->dev, mip->INODE.i_block[12], (char *) i_buf);
         for (i = 0; i < 256; i++)
         {
+            // Deallocate each indirect block.
             bdealloc(mip->dev, i_buf[i]);
-            //i_buf[i] = 0;
         }
-        //put_block(mip->dev, mip->INODE.i_block[12], (char *) i_buf);
+        // Deallocate the block of indirect block numbers.
         bdealloc(mip->dev, mip->INODE.i_block[12]);
-        //((u32 *) mip->INODE.i_block[12])[i] = 0;
     }
     mip->INODE.i_block[12] = 0;
 
@@ -46,11 +42,14 @@ truncate(MINODE* mip)
                 get_block(mip->dev, i_buf[i], (char *) di_buf);
                 for (j = 0; j < 256; j++)
                 {
+                    // Deallocate each double indirect block.
                     bdealloc(mip->dev, di_buf[j]);
                 }
+                // Deallocate each indirect block of indirect block numbers.
                 bdealloc(mip->dev, i_buf[i]);
             }
         }
+        // Deallocate the block of double indirect block numbers.
         bdealloc(mip->dev, mip->INODE.i_block[13]);
     }
     mip->INODE.i_block[13] = 0;
