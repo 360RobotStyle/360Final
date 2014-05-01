@@ -10,6 +10,12 @@ do_close()
     int dev;
     int i;
 
+    if (0 == strcmp(pathName, ""))
+    {
+        printf("close : missing filename\n");
+        return;
+    }
+
     igetparentandfile(&dev, &pip, &mip, pathName);
 
     if (!pip)

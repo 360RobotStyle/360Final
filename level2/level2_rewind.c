@@ -2,7 +2,8 @@
 #include "../util.h"
 
 void
-access_file()
+do_rewind()
 {
-    
+    strcpy(parameter, "0");
+    do_lseek();
 }

@@ -28,8 +28,8 @@ static command command_table[] =
     {"open",    do_open}, // Cameron
     {"close",   do_close}, // Cameron
     {"pfd",     pfd}, // Gabe
-    //{"lseek",   do_lseek}, // Cameron
-    //{"rewind",  access_file}, // Cameron
+    {"lseek",   do_lseek}, // Cameron
+    {"rewind",  do_rewind}, // Cameron
     {"read",    read_file}, // Gabe
     {"write",   write_file}, // Gabe
     {"cat",     cat_file}, // Gabe
