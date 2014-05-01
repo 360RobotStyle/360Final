@@ -240,7 +240,6 @@ cp_file()
     int dev;
     int mode;
     int i, n, fd;
-    int tbytes = 0;
 
 
     // 1)
@@ -279,9 +278,9 @@ cp_file()
         return;
     }
 
-    ino = getino(&dev, dir_name(pathName));
+    ino = getino(&dev, dir_name(parameter));
     mip2 = iget(dev, ino);
-    ino = getfileino(mip2, base_name(pathName));
+    ino = getfileino(mip2, base_name(parameter));
     iput(mip2);
     mip2 = iget(dev, ino);
 
@@ -305,10 +304,8 @@ cp_file()
     {
         strncpy(wbuf, rbuf, n);
         mywrite2(oftp2, wbuf, n);
-        tbytes += n;
     }
 
-    mip2->INODE.i_size = tbytes;
     mip2->INODE.i_mtime = time(0L);
     mip2->dirty = 1;
     iput(mip2);
