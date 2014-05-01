@@ -116,21 +116,67 @@ do_open()
     if ((mip->INODE.i_mode & 0100000) != 0100000)
     {
         printf("open : invalid file type\n");
+        iput(mip);
         return;
     }
-
-    // FIXME Need to check for permissions
-
-    // FIXME Check whether the file is ALREADY opened with INCOMPATIBLE type:
+    // Check whether the file is ALREADY opened with INCOMPATIBLE type:
     // If it's already opened for W, RW, APPEND : reject.
     // (that is, only multiple R are OK)
 
+    // Need to check for permissions
+    if ((0 == mode && !((mip->INODE).i_mode & 0x0100)) || // user read
+        (1 == mode && !((mip->INODE).i_mode & 0x0080)) || // user write
+        (2 == mode && !((mip->INODE).i_mode & 0x0040)) || // user execute
+        (3 == mode && !((mip->INODE).i_mode & 0x0100)))   // user read
+    {
+        printf("open : insufficient privaleges\n");
+        iput(mip);
+        return;
+    }
+
+    // Check all fd entries.
+    for (i = 0; i < NFD; i++) 
+    {
+        if (running->fd[i])
+        {
+            oftp = running->fd[i];
+            if (oftp->refCount && oftp->inodeptr == mip)
+            {
+                // 0|1|2|3 for R|W|RW|APPEND
+                // Anything but read mode is bad!
+                if (oftp->mode)
+                {
+                    printf("File '%s' already opened with incompatible mode.\n", base_name(pathName));
+                    iput(mip);
+                    return;
+                }
+                break;
+            }
+        }
+        oftp = 0;
+    }
+
+
     // 5. allocate an OpenFileTable (OFT) entry and fill in values:
-    oftp = falloc();       // get a FREE OFT
-    if (0 == oftp) return; // oft FULL
-    oftp->mode = mode;     // open mode
-    oftp->refCount = 1;
-    oftp->inodeptr = mip;  // point at the file's minode[]
+    if (oftp && oftp->mode == mode)
+    {
+        // This oftp will work for us too. Just increase the ref count.
+        oftp->refCount++;
+        printf("open file ref count is %i\n", oftp->refCount);
+    }
+    else
+    {
+        // We need a new oftp entry.
+        oftp = falloc();       // get a FREE OFT
+        if (0 == oftp)
+        {
+            iput(mip);
+            return; // oft FULL
+        }
+        oftp->mode = mode;     // open mode
+        oftp->refCount = 1;
+        oftp->inodeptr = mip;  // point at the file's minode[]
+    }
 
     // 6. Depending on the open mode 0|1|2|3, set the OFT's offset accordingly:
     switch (mode)
