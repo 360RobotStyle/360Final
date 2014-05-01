@@ -25,7 +25,7 @@ static command command_table[] =
     {"touch",   touch_file}, // Gabe
 
     // LEVEL 2
-    {"open",    do_open}, // Cameron
+    {"open",    do_open}, // Cameron/Gabe
     {"close",   do_close}, // Cameron
     {"pfd",     pfd}, // Gabe
     {"lseek",   do_lseek}, // Cameron
@@ -33,7 +33,7 @@ static command command_table[] =
     {"read",    read_file}, // Gabe
     {"write",   write_file}, // Gabe
     {"cat",     cat_file}, // Gabe
-    //{"cp",      cp_file}, // Gabe
+    {"cp",      cp_file}, // Gabe
     //{"mv",      mv_file}, // Gabe
 
     // LEVEL 3
