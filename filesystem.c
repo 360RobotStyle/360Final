@@ -30,7 +30,7 @@ static command command_table[] =
     {"pfd",     pfd},
     //{"lseek",   do_lseek}, // Cameron
     //{"rewind",  access_file},
-    //{"read",    read_file},
+    {"read",    read_file},
     {"write",   write_file}, // Gabe
     //{"cat",     cat_file},
     //{"cp",      cp_file}, // Gabe
@@ -56,7 +56,8 @@ void init ()
     proc[0].uid = SUPER_USER;
     proc[0].cwd = 0;
 
-    for (i = 0; i < NFD; i++) proc[0].fd[i] = 0;
+    for (i = 0; i < NFD; i++) proc[0].fd[i] = 0; // set to null
+    for (i = 0; i < NOFT; i++) oft[i].refCount = 0;
 
     proc[1].uid = 1;
     proc[1].cwd = 0;

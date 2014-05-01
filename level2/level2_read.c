@@ -4,7 +4,67 @@
 static void
 myread(int fd, char* buf, int nbytes)
 {
+    OFT* oftp;
+    int count, avil, blk;
+    int lbk, startByte, remain;
+    char* cq;
+    char* cp;
+    char readbuf[BLOCK_SIZE];
+    MINODE* mip;
 
+    oftp = running->fd[fd];
+    mip = oftp->inodeptr;
+
+    // 1) number of bytes still available in file
+    avil = mip->INODE.i_size - oftp->offset;
+    count = 0;
+    cq = buf;
+
+    // 2)
+    while (nbytes && avil)
+    {
+        // compute LOGICAL BLOCK number lbk and startByte in that block from offset
+        lbk = oftp->offset / BLOCK_SIZE;
+        startByte = oftp->offset % BLOCK_SIZE;
+
+        // Direct block
+        if (lbk < 12)
+        {
+            blk = mip->INODE.i_block[lbk];
+        }
+        // indirect block
+        else if (lbk >= 12 && lbk < 256 + 12)
+        {
+            // FIXME
+        }
+        // double indirect block
+        else
+        {
+            // FIXME
+        }
+
+        // get the data block into readbuf[BLOCK_SIZE]
+        get_block(mip->dev, blk, readbuf);
+
+        // copy from startByte to buf[], at most remain bytes in this block
+        cp = readbuf + startByte;
+        remain = BLOCK_SIZE - startByte; // number of bytes remain in readbuf[]
+
+        while (remain > 0)
+        {
+            *cq++ = *cp++;           // copy byte into buf[]
+            oftp->offset++;
+            count++;
+            avil--;
+            nbytes--;
+            remain--;
+            if (nbytes <= 0 || avil <= 0) break;
+        }
+
+        // if one data block is not enough, loop back to OUTER while for more
+    }
+
+    printf("\nread : read %d char from file %d\n", count, fd);
 }
 
 void
@@ -13,7 +73,7 @@ read_file()
     int fd;
     int i;
     int nbytes;
-    char buf[BLOCK_SIZE];
+    char* buf;
 
     if (1 == strlen(pathName) && pathName[0] >= '0' && pathName[0] <= '9')
     {
@@ -40,7 +100,11 @@ read_file()
         if ((0 != running->fd[fd]) && (0 != running->fd[fd]->refCount) &&
             (0 == running->fd[fd]->mode || 1 == running->fd[fd]->mode))
         {
+            buf = (char*)malloc(sizeof(char) * nbytes + 1);
+            bzero(buf, nbytes + 1);
             myread(fd, buf, nbytes);
+            printf("\033[32m%s\033[0m\n", buf);
+            free(buf);
         }
         else
         {

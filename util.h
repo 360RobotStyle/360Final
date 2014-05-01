@@ -35,6 +35,7 @@ PROC* running;
 PROC* readyQueue;
 MINODE minode[NMINODES];
 MINODE* root;
+OFT oft[NOFT];
 
 char line[256];
 char pathName[128];
@@ -161,6 +162,11 @@ int rm_child(MINODE *pip, char *my_name);
  */
 int put_rec(MINODE *pip, char *name, u32 ino);
 int del_rec(MINODE *pip, char *name);
+
+/*
+ * Allocate entry from open file table
+ */
+OFT* falloc();
 
 void err_printf(char* msg);
 

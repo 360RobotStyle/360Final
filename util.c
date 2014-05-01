@@ -671,6 +671,20 @@ del_rec(MINODE *pip, char *name)
     return 0;
 }
 
+OFT* falloc()
+{
+    int i;
+    for (i = 0; i < NOFT; i++)
+    {
+        if (0 == oft[i].refCount)
+        {
+            return &(oft[i]);
+        }
+    }
+    err_printf("panic : open file table is full!\n");
+    return NULL;
+}
+
 void err_printf(char* msg)
 {
     printf("\033[31m%s\033[0m", msg);
