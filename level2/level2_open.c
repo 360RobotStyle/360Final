@@ -126,7 +126,7 @@ do_open()
     // Need to check for permissions
     if ((0 == mode && !((mip->INODE).i_mode & 0x0100)) || // user read
         (1 == mode && !((mip->INODE).i_mode & 0x0080)) || // user write
-        (2 == mode && !((mip->INODE).i_mode & 0x0040)) || // user execute
+        (2 == mode && !((mip->INODE).i_mode & 0x0180) == 0x0180) || // user read/write
         (3 == mode && !((mip->INODE).i_mode & 0x0100)))   // user read
     {
         printf("open : insufficient privaleges\n");
