@@ -31,16 +31,20 @@ myread(int fd, char* buf, int nbytes)
         if (lbk < 12)
         {
             blk = mip->INODE.i_block[lbk];
+            //printf("direct %d\n", blk);
         }
         // indirect block
         else if (lbk >= 12 && lbk < 256 + 12)
         {
-            // FIXME
+            blk = mip->INODE.i_block[12] + (lbk - 11);
+            printf("indirect lbk %d\n", blk);
         }
         // double indirect block
         else
         {
             // FIXME
+            blk = mip->INODE.i_block[13] + (2 + (lbk - 268));
+            printf("double indirect lbk %d\n", blk);
         }
 
         // get the data block into readbuf[BLOCK_SIZE]
