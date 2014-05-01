@@ -68,7 +68,8 @@ do_symlink()
         cleanup_symlink(pip_from, mip_from, pip_to, mip_to);
         return;
     }
-    cleanup_symlink(pip_from, mip_from, pip_to, mip_to);
+    //else if (
+    //cleanup_symlink(pip_from, mip_from, pip_to, mip_to);
 
 
 

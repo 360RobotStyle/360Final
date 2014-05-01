@@ -4,60 +4,37 @@
 void
 do_lseek()
 {
-    MINODE *pip;
-    MINODE *mip;
-    OFT *oftp;
-    int dev;
-    int i;
+    int fd;
     u32 offset;
+    printf("getting to lseek\n");
 
     if (0 == strcmp(pathName, ""))
     {
-        printf("lseek : missing filename\n");
+        printf("close : missing file descriptor\n");
         return;
     }
-
     if (0 == strcmp(parameter, ""))
     {
         printf("lseek : missing offset\n");
         return;
     }
+
+    fd = atoi(pathName);
     offset = (u32) atoi(parameter);
 
-    igetparentandfile(&dev, &pip, &mip, pathName);
-
-    if (!pip)
+    if ((!running->fd[fd]) || !(running->fd[fd]->refCount))
     {
-        printf("Couldn't find file '%s'\n", pathName);
-        return;
+        running->fd[fd] = 0;
+        printf("File '%s' is not open.\n", pathName);
     }
-    else if (!mip)
+    else if (offset > ((running->fd[fd])->inodeptr->INODE).i_size)
     {
-        printf("Couldn't find file '%s'\n", pathName);
-        iput(pip);
-        return;
+        printf("Offset exceeds file boundary %i\n", (int) ((running->fd[fd])->inodeptr->INODE).i_size);
     }
-    iput(pip);
-
-    // Check all fd entries.
-    for (i = 0; i < NFD; i++)
+    else
     {
-        if (running->fd[i] && running->fd[i]->refCount && (running->fd[i]->inodeptr == mip))
-        {
-            if (offset > (mip->INODE).i_size)
-            {
-                printf("Offset exceeds file boundary\n");
-            }
-            else
-            {
-                printf("Moving offset from %i to %i\n", (int) (running->fd[i])->offset, (int) offset);
-                (running->fd[i])->offset = offset;
-            }
-            iput(mip);
-
-            return;
-        }
+        printf("Moving offset from %i to %i\n", (int) (running->fd[fd])->offset, (int) offset);
+        (running->fd[fd])->offset = offset;
     }
-    printf("File '%s' is not open.\n", pathName);
-    iput(mip);
 }
+

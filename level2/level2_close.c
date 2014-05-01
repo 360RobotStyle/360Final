@@ -4,45 +4,28 @@
 void
 do_close()
 {
-    MINODE *pip;
-    MINODE *mip;
-    OFT *oftp;
-    int dev;
-    int i;
+    int fd;
 
     if (0 == strcmp(pathName, ""))
     {
-        printf("close : missing filename\n");
+        printf("close : missing file descriptor\n");
         return;
     }
-
-    igetparentandfile(&dev, &pip, &mip, pathName);
-
-    if (!pip)
+    fd = atoi(pathName);
+    if ((!running->fd[fd]) || !(running->fd[fd]->refCount))
     {
-        printf("Couldn't find file '%s'\n", pathName);
-        return;
+        printf("File '%s' is not open.\n", pathName);
     }
-    else if (!mip)
+    else
     {
-        printf("Couldn't find file '%s'\n", pathName);
-        iput(pip);
-        return;
-    }
-    iput(pip);
-
-    // Check all fd entries.
-    for (i = 0; i < NFD; i++)
-    {
-        if (running->fd[i] && running->fd[i]->refCount && (running->fd[i]->inodeptr == mip))
+        (running->fd[fd])->refCount--;
+        iput(running->fd[fd]->inodeptr); // mip has a matching ref count.
+        printf("Closed '%s'. File has %i open file descriptors.\n", pathName,
+                (running->fd[fd])->refCount);
+        if (!(running->fd[fd]->refCount))
         {
-            (running->fd[i])->refCount--;
-            iput(mip); // mip has a matching ref count.
-            printf("Closed '%s'. File has %i open file descriptors.\n", pathName,
-                    (running->fd[i])->refCount);
-            return;
+            running->fd[fd] = 0;
         }
+        return;
     }
-    printf("File '%s' is not open.\n", pathName);
-    iput(mip);
 }
