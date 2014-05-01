@@ -4,21 +4,56 @@
 void
 truncate(MINODE* mip)
 {
-    int i;
+    int i, j;
+    u32 i_buf[BLOCK_SIZE / 4]; // indirect buf
+    u32 di_buf[BLOCK_SIZE / 4]; // double indirect buf
+
+    //i_blk = (u32 *) buf;
 
     // 1) FIXME release mip->INODE's data blocks
     // a file may have 12 direct blocks, 256 indirect blocks and 256* 256
     // double indirect data blocks. release them all
 
     // Direct block
-    for (i = 0; i < 12 && mip->INODE.i_block[i]; i++)
+    for (i = 0; i < 12 /* && mip->INODE.i_block[i]*/; i++)
+    {
+        bdealloc(mip->dev, mip->INODE.i_block[i]);
         mip->INODE.i_block[i] = 0;
+    }
     // Indirect block
     if (mip->INODE.i_block[12])
-        mip->INODE.i_block[12] = 0;
+    {
+        get_block(mip->dev, mip->INODE.i_block[12], (char *) i_buf);
+        for (i = 0; i < 256; i++)
+        {
+            bdealloc(mip->dev, i_buf[i]);
+            //i_buf[i] = 0;
+        }
+        //put_block(mip->dev, mip->INODE.i_block[12], (char *) i_buf);
+        bdealloc(mip->dev, mip->INODE.i_block[12]);
+        //((u32 *) mip->INODE.i_block[12])[i] = 0;
+    }
+    mip->INODE.i_block[12] = 0;
+
     // Double indirect block
     if (mip->INODE.i_block[13])
-        mip->INODE.i_block[13] = 0;
+    {
+        get_block(mip->dev, mip->INODE.i_block[13], (char *) i_buf);
+        for (i = 0; i < 256; i++)
+        {
+            if (i_buf[i])
+            {
+                get_block(mip->dev, i_buf[i], (char *) di_buf);
+                for (j = 0; j < 256; j++)
+                {
+                    bdealloc(mip->dev, di_buf[j]);
+                }
+                bdealloc(mip->dev, i_buf[i]);
+            }
+        }
+        bdealloc(mip->dev, mip->INODE.i_block[13]);
+    }
+    mip->INODE.i_block[13] = 0;
 
     // 2) update INODE's time field
     mip->INODE.i_atime = mip->INODE.i_mtime = time(0L);
