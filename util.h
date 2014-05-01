@@ -36,6 +36,7 @@ PROC* readyQueue;
 MINODE minode[NMINODES];
 MINODE* root;
 OFT oft[NOFT];
+MOUNT mount[NMOUNT];
 
 char line[256];
 char pathName[128];

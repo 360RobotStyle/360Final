@@ -38,7 +38,7 @@ static command command_table[] =
     {"mv",      do_mv}, // Cameron
 
     // LEVEL 3
-    //{"mount",   mount},
+    {"mount",   do_mount}, // Cameron
     //{"umount",  umount},
     //{"cs",      cs},
     //{"fork",    do_fork},
@@ -59,6 +59,8 @@ void init ()
 
     for (i = 0; i < NFD; i++) proc[0].fd[i] = 0; // set to null
     for (i = 0; i < NOFT; i++) oft[i].refCount = 0;
+
+    bzero(mount, sizeof(MOUNT) * NMOUNT);
 
     proc[1].uid = 1;
     proc[1].cwd = 0;
@@ -124,6 +126,12 @@ void mount_root ()
     // Get root inode
     root = iget(fd, ROOT_INODE);
     printf("mounted root\n");
+    mount[0].mounted_inode = root;
+    mount[0].dev = fd;
+    mount[0].ninodes = (root->INODE).s_inodes_count;
+    mount[0].nblocks = (root->INODE).s_blocks_count;
+    strncpy(mount[0].image_name, device, 256);
+    strncpy(mount[0].mount_name, "/", 256);
 
     // Let cwd of both P0 and P1 point at the root minode (refCOunt = 3)
     printf("creating P0, P1\n");

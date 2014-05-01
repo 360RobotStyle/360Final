@@ -7,6 +7,7 @@ extern PROC* running;
 extern PROC* readyQueue;
 extern MINODE minode[NMINODES];
 extern MINODE* root;
+extern MOUNT mount[NMOUNT];
 
 extern char line[256];
 extern char pathName[128];

@@ -92,8 +92,8 @@ typedef struct mount
     int nblocks;
     int dev;   // busy DOUBLE CHECK
     MINODE* mounted_inode;
-    char name[256];
-    char mount_name[64];
+    char image_name[256];
+    char mount_name[256];
 } MOUNT;
 
 #endif
