@@ -11,19 +11,29 @@ stat_file()
     int dev;
     time_t t;
 
-    if (0 == pathName[0])
+    if
+    (    0 == strlen(    pathName    )    )
     {
         ino = running->cwd->ino;
         dev = running->cwd->dev;
     }
     else if (0 == strcmp(pathName, "/"))
     {
-        ino = running->cwd->ino;
-        dev = running->cwd->dev;
+        ino = root->ino;
+        dev = root->dev;
     }
     else
     {
         ino = getino(&dev, pathName);
+    }
+
+    ino = getino(&dev, pathName);
+    if ((u32)-1 == ino)
+    {
+        ino = getino(&dev, dir_name(pathName));
+        mip = iget(dev, ino);
+        ino = getfileino(mip, base_name(pathName));
+        iput(mip);
     }
     mip = iget(dev, ino);
 

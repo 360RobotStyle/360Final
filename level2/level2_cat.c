@@ -130,7 +130,7 @@ cat_file()
         for (i = 0; i < n; i++)
             putchar(buf[i]);
     }
-    printf("\033[0m");
+    printf("\033[0m\n");
 
     oftp->refCount = 0;
     oftp->inodeptr = 0;

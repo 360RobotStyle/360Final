@@ -17,7 +17,7 @@ static command command_table[] =
     {"link",    do_link}, // Cameron
     {"unlink",  do_unlink}, // Cameron
     {"symlink", do_symlink}, // Cameron
-    {"readlink", do_readlink}, // Cameron
+    {"readlink",do_readlink}, // Cameron
     {"rm",      do_rm}, // Cameron
     {"chmod",   chmod_file}, // Gabe
     {"chown",   chown_file}, // Gabe
@@ -35,7 +35,7 @@ static command command_table[] =
     {"write",   write_file}, // Gabe
     {"cat",     cat_file}, // Gabe
     {"cp",      cp_file}, // Gabe
-    //{"mv",      mv_file}, // Gabe
+    //{"mv",      mv_file}, // Cameron
 
     // LEVEL 3
     //{"mount",   mount},

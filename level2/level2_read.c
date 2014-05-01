@@ -107,7 +107,7 @@ read_file()
 
         // 2) verify fd is indeed opened for R or RW mode
         if ((0 != running->fd[fd]) && (0 != running->fd[fd]->refCount) &&
-            (0 == running->fd[fd]->mode || 1 == running->fd[fd]->mode))
+            (0 == running->fd[fd]->mode || 2 == running->fd[fd]->mode))
         {
             buf = (char*)malloc(sizeof(char) * nbytes + 1);
             bzero(buf, nbytes + 1);
