@@ -147,21 +147,22 @@ u32 getino (int* dev, char* pathname)
 
         if (ino == mip->ino && 0 == strcmp("..", pathNameTokenPtrs[i]))
         {
-            printf("getting to special case\n");
+            //printf("getting to special case\n");
             for (j = 0; j < NMINODES; j++)
             {
                 if (minode[j].refCount && 
                         minode[j].mounted && 
                         minode[j].mountptr->mounted_inode == mip)
                 {
-                    printf("getting to special case2\n");
-                    printf("changing minode from dev %i inode %i\n", mip->dev, mip->ino);
+                    //printf("getting to special case2\n");
+                    //printf("changing minode from dev %i inode %i\n", mip->dev, mip->ino);
+                    iput(mip);
                     mip = &minode[j];
-                    printf("to dev %i inode %i\n", mip->dev, mip->ino);
+                    //printf("to dev %i inode %i\n", mip->dev, mip->ino);
                     // FIXME does ref count for this minode need to increment?
                     *dev = mip->dev;
                     ino = search(mip, pathNameTokenPtrs[i]);
-                    printf("from search, we got ino %i\n", (int) ino);
+                    //printf("from search, we got ino %i\n", (int) ino);
                     return ino;
                     //break;
                 }
@@ -179,7 +180,7 @@ u32 getino (int* dev, char* pathname)
         }
         if (-1 == ino)
         {
-            printf("3\n");
+            //printf("3\n");
             return -1;
         }
     }

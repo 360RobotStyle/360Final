@@ -31,7 +31,7 @@ do_umount()
     for (i = 0; i < NMINODES; i++)
     {
         if ((minode[i].refCount && minode[i].dev == umnt->dev) &&
-                !(minode[i].refCount == 1 && minode[i].ino == ROOT_INODE))
+                !(/*minode[i].refCount == 1 &&*/ minode[i].ino == ROOT_INODE))
         {
             printf("umount : filesys is busy, cannot umount\n");
             return;
