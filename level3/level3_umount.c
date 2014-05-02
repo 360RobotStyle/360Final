@@ -30,7 +30,8 @@ do_umount()
     // HOW to check?  ANS: by checking all minode[].dev
     for (i = 0; i < NMINODES; i++)
     {
-        if (minode[i].refCount && minode[i].dev == umnt->dev)
+        if ((minode[i].refCount && minode[i].dev == umnt->dev) &&
+                !(minode[i].refCount == 1 && minode[i].ino == ROOT_INODE))
         {
             printf("umount : filesys is busy, cannot umount\n");
             return;
@@ -42,8 +43,10 @@ do_umount()
     //         iput() the minode. (because it was iget()ed during mounting)
     for (i = 0; i < NMINODES; i++)
     {
-        if (minode[i].refCount && minode[i].mountptr->dev == umnt->dev)
+        if (minode[i].refCount && minode[i].mounted &&
+                (minode[i].mountptr->dev == umnt->dev))
         {
+            close(umnt->dev);
             minode[i].mountptr = 0;
             iput(&minode[i]);
             umnt->mounted_inode = 0;

@@ -156,7 +156,7 @@ u32 search (MINODE* mip, char* name)
     char temp[128];
 
     // MOUNT changes
-    if (mip->mounted)
+    if (mip->mountptr)
     {
         ip = &(mip->mountptr->mounted_inode->INODE);
         dev = mip->mountptr->dev;

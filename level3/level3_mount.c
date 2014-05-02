@@ -32,6 +32,7 @@ do_mount()
                         mount[i].image_name, mount[i].dev, mount[i].mount_name);
             }
         }
+        return;
     }
 
     if (0 == strcmp(parameter, "") || 
@@ -106,16 +107,14 @@ do_mount()
     mip->mounted = 1;
     mip->mountptr = mnt;
 
-
-    // Get root inode
     mnt->mounted_inode = iget(fd, ROOT_INODE);
 
     printf("mounted root\n");
     mnt->dev = fd;
     mnt->ninodes = sp->s_inodes_count;
     mnt->nblocks = sp->s_blocks_count;
-    strncpy(mnt->image_name, parameter, 256);
-    strncpy(mnt->mount_name, pathName, 256);
+    strncpy(mnt->image_name, pathName, 256);
+    strncpy(mnt->mount_name, parameter, 256);
 
     printf("mount : success\n");
     // FIXME verify mount point.
