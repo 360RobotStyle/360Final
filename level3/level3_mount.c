@@ -7,20 +7,52 @@ do_mount()
 
     int i;
     int dev;
+    int fd;
     int mino;
+    MINODE *mip;
+    char buf[BLOCK_SIZE];
+    MOUNT *mnt;
 // mount()    /*  Usage: mount filesys mount_point OR mount */
 // 
 // 1. Ask for filesys (a pathname) and mount_point (a pathname also).
 // If mount with no parameters: display current mounted filesystems.
 //
-    mino = getino(&dev, ".");
-    printf("my dev is %i\n", dev);
-
 
     if (0 == strcmp(pathName, ""))
     {
-        // TODO Display mount points and exit.
-        printf("should display mount points\n");
+        // Display mount points and exit.
+        printf("\n*****************************************************\n");
+        printf("%20s   fd %20s\n", "device name", "mount point");
+        printf("*****************************************************\n");
+        for (i = 0; i < NMOUNT; i++)
+        {
+            if (mount[i].dev)
+            {
+                printf("%20s %4i %20s\n", 
+                        mount[i].image_name, mount[i].dev, mount[i].mount_name);
+            }
+        }
+    }
+
+    if (0 == strcmp(parameter, "") || 
+            0 == strcmp(parameter, ".") ||
+            0 == strcmp(parameter, ".."))
+    {
+        printf("mount : Invalid mount point '%s'\n", parameter);
+        return;
+    }
+    mino = getino(&dev, parameter);
+    if (-1 == mino)
+    {
+        printf("mount : Invalid mount point '%s'\n", parameter);
+        return;
+    }
+    mip = iget(dev, mino);
+    if (0x4000 != (0x4000 & (mip->INODE).i_mode))
+    {
+        iput(mip);
+        printf("mount : Invalid mount point '%s'\n", parameter);
+        return;
     }
 
 // 2. Check whether filesys is already mounted: 
@@ -30,8 +62,66 @@ do_mount()
 
     for (i = 0; i < NMOUNT; i++)
     {
-        
+        if (mount[i].dev && 0 == strcmp(mount[i].image_name, pathName))
+        {
+            printf("mount : Image '%s' is already mounted\n", pathName);
+            iput(mip);
+            return;
+        }
     }
+    fd = open(pathName, O_RDWR);
+    if (fd < 0)
+    {
+        printf("mount : can't open '%s'\n", pathName);
+        iput(mip);
+        return;
+    }
+    mnt = oalloc(fd);
+
+    // check InodesBeginBlock
+    get_block(fd, GDBLOCK, buf);
+    gp = (GD*)buf;
+    if (INODEBLOCK != gp->bg_inode_table)
+    {
+        err_printf("error: inode begin block\n");
+        odealloc(fd);
+        iput(mip);
+        return;
+    }
+
+    // read SUPER block to verify it's an EXT2 FS
+    get_block(fd, SUPERBLOCK, buf);
+    sp = (SUPER*)buf;
+    if (SUPER_MAGIC != sp->s_magic)
+    {
+        err_printf("error: not ext2 filesystem\n");
+        odealloc(fd);
+        iput(mip);
+        return;
+    }
+    printf("nblocks=%d  bfree=%d   ninodes=%d  ifree=%d\n",
+                sp->s_blocks_count, sp->s_free_blocks_count,
+                sp->s_inodes_count, sp->s_free_inodes_count);
+
+    mip->mounted = 1;
+    mip->mountptr = mnt;
+
+
+    // Get root inode
+    mnt->mounted_inode = iget(fd, ROOT_INODE);
+
+    printf("mounted root\n");
+    mnt->dev = fd;
+    mnt->ninodes = sp->s_inodes_count;
+    mnt->nblocks = sp->s_blocks_count;
+    strncpy(mnt->image_name, parameter, 256);
+    strncpy(mnt->mount_name, pathName, 256);
+
+    printf("mount : success\n");
+    // FIXME verify mount point.
+
+
+
 // 
 // 3. open filesys for RW; use its fd number as the new DEV;
 // Check whether it's an EXT2 file system: if not, reject.

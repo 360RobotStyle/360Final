@@ -142,6 +142,9 @@ void decFreeInodes(int dev);
  */
 int ialloc (int dev);
 
+MOUNT *oalloc (int dev);
+void odealloc (int dev);
+
 /*
  * Decrement the free blocks count in superblock and group descriptor
  */
