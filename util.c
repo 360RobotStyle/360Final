@@ -157,7 +157,7 @@ u32 search (MINODE* mip, char* name)
     u32 myino, parent;
 
     // MOUNT changes
-    if (mip->mounted)
+    if (mip->mountptr)
     {
         ip = &(mip->mountptr->mounted_inode->INODE);
         dev = mip->mountptr->dev;
@@ -785,6 +785,40 @@ del_rec(MINODE *pip, char *name)
         put_block(pip->dev, (pip->INODE).i_block[i], buf);
     }
     return 0;
+}
+
+MOUNT *
+oalloc(int dev)
+{
+    int i;
+    for (i = 0; i < NMOUNT; i++)
+    {
+        if (0 == mount[i].dev)
+        {
+            mount[i].dev = dev;
+            return &(mount[i]);
+        }
+    }
+    err_printf("panic : mount table is full!\n");
+    return NULL;
+}
+
+void
+odealloc(int dev)
+{
+    int i;
+    for (i = 0; i < NMOUNT; i++)
+    {
+        if (dev == mount[i].dev)
+        {
+            mount[i].dev = 0;
+            mount[i].nblocks = 0;
+            mount[i].ninodes = 0;
+            mount[i].mounted_inode = NULL;
+            strcpy(mount[i].image_name, "");
+            strcpy(mount[i].mount_name, "");
+        }
+    }
 }
 
 OFT* falloc()

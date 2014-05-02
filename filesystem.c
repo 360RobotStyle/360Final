@@ -68,7 +68,11 @@ void init ()
     running = &proc[0];
     readyQueue = &proc[1];
 
-    for (i = 0; i < NMINODES; i++) minode[i].refCount = 0;
+    for (i = 0; i < NMINODES; i++)
+    {
+        minode[i].refCount = 0;
+        minode[i].mounted = 0;
+    }
 
     root = 0;
 
@@ -130,6 +134,7 @@ void mount_root ()
     mount[0].dev = fd;
     mount[0].ninodes = sp->s_inodes_count;
     mount[0].nblocks = sp->s_blocks_count;
+    // We don't care about our own original name.
     strncpy(mount[0].image_name, device, 256);
     strncpy(mount[0].mount_name, "/", 256);
 
