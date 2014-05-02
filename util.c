@@ -116,6 +116,12 @@ u32 getino (int* dev, char* pathname)
     int i, workingDev;
     char* token;
 
+    if (0 == strcmp(pathName, "/"))
+    {
+        *dev = root->dev;
+        return root->ino;
+    }
+
     if ('/' == pathname[0])
     {
         ino = root->ino;
@@ -161,12 +167,6 @@ u32 search (MINODE* mip, char* name)
     {
         ip = &(mip->mountptr->mounted_inode->INODE);
         dev = mip->mountptr->dev;
-
-        if (0 == strcmp(name, ".."))
-        {
-            findino(mip, &myino, &parent);
-            return parent;
-        }
     }
     else
     {
@@ -263,6 +263,12 @@ u32 getino2 (int* dev, char* pathname)
     u32 ino;
     int i, workingDev;
     char* token;
+
+    if (0 == strcmp(pathName, "/"))
+    {
+        *dev = root->dev;
+        return root->ino;
+    }
 
     if ('/' == pathname[0])
     {
