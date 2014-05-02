@@ -154,12 +154,19 @@ u32 search (MINODE* mip, char* name)
     char *cp;
     char buf[BLOCK_SIZE];
     char temp[128];
+    u32 myino, parent;
 
     // MOUNT changes
     if (mip->mounted)
     {
         ip = &(mip->mountptr->mounted_inode->INODE);
         dev = mip->mountptr->dev;
+
+        if (0 == strcmp(name, ".."))
+        {
+            findino(mip, &myino, &parent);
+            return parent;
+        }
     }
     else
     {
