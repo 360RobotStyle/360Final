@@ -39,7 +39,7 @@ static command command_table[] =
 
     // LEVEL 3
     {"mount",   do_mount}, // Cameron
-    //{"umount",  umount},
+    {"umount",  do_umount}, // Gabe
     //{"cs",      cs},
     //{"fork",    do_fork},
     //{"ps",      do_ps},
