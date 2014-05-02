@@ -162,7 +162,8 @@ u32 getino (int* dev, char* pathname)
                     *dev = mip->dev;
                     ino = search(mip, pathNameTokenPtrs[i]);
                     printf("from search, we got ino %i\n", (int) ino);
-                    break;
+                    return ino;
+                    //break;
                 }
             }
         }
@@ -170,12 +171,10 @@ u32 getino (int* dev, char* pathname)
         if (mip->mounted)
         {
             printf("dev %i inode %i\n", mip->dev, mip->ino);
-            printf("1\n");
             *dev = mip->mountptr->dev;
         }
         else
         {
-            printf("2\n");
             *dev = mip->dev;
         }
         if (-1 == ino)
@@ -197,31 +196,31 @@ u32 search (MINODE* mip, char* name)
     char temp[128];
     u32 myino, parent;
 
-<<<<<<< HEAD
-    // MOUNT changes
-    if (mip->mountptr)
-    {
-        ip = &(mip->mountptr->mounted_inode->INODE);
-        dev = mip->mountptr->dev;
-    }
-    else
-    {
-=======
-    //// MOUNT changes
-    //if (mip->mountptr)
-    //{
-    //    ip = &(mip->mountptr->mounted_inode->INODE);
-    //    dev = mip->mountptr->dev;
-
-    //    if (0 == strcmp(name, ".."))
-    //    {
-    //        findino(mip, &myino, &parent);
-    //        return parent;
-    //    }
-    //}
-    //else
-    //{
->>>>>>> cevans
+//<<<<<<< HEAD
+//    // MOUNT changes
+//    if (mip->mountptr)
+//    {
+//        ip = &(mip->mountptr->mounted_inode->INODE);
+//        dev = mip->mountptr->dev;
+//    }
+//    else
+//    {
+//=======
+//    //// MOUNT changes
+//    //if (mip->mountptr)
+//    //{
+//    //    ip = &(mip->mountptr->mounted_inode->INODE);
+//    //    dev = mip->mountptr->dev;
+//
+//    //    if (0 == strcmp(name, ".."))
+//    //    {
+//    //        findino(mip, &myino, &parent);
+//    //        return parent;
+//    //    }
+//    //}
+//    //else
+//    //{
+//>>>>>>> cevans
         ip = &(mip->INODE);
         dev = mip->dev;
     //}
