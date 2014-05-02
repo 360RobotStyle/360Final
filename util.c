@@ -114,6 +114,7 @@ u32 getino (int* dev, char* pathname)
     MINODE* mip;
     u32 ino;
     int i, workingDev;
+    int j;
     char* token;
 
     if ('/' == pathname[0])
@@ -136,12 +137,46 @@ u32 getino (int* dev, char* pathname)
     {
         mip = iget(*dev, ino);
         ino = search(mip, pathNameTokenPtrs[i]);
+
+
+        if (ino == mip->ino && 0 == strcmp("..", pathNameTokenPtrs[i]))
+        {
+            printf("getting to special case\n");
+            for (j = 0; j < NMINODES; j++)
+            {
+                if (minode[j].refCount && 
+                        minode[j].mounted && 
+                        minode[j].mountptr->mounted_inode == mip)
+                {
+                    printf("getting to special case2\n");
+                    printf("changing minode from dev %i inode %i\n", mip->dev, mip->ino);
+                    mip = &minode[j];
+                    printf("to dev %i inode %i\n", mip->dev, mip->ino);
+                    // FIXME does ref count for this minode need to increment?
+                    *dev = mip->dev;
+                    ino = search(mip, pathNameTokenPtrs[i]);
+                    printf("from search, we got ino %i\n", (int) ino);
+                    break;
+                }
+            }
+        }
+
         if (mip->mounted)
+        {
+            printf("dev %i inode %i\n", mip->dev, mip->ino);
+            printf("1\n");
             *dev = mip->mountptr->dev;
+        }
         else
+        {
+            printf("2\n");
             *dev = mip->dev;
+        }
         if (-1 == ino)
+        {
+            printf("3\n");
             return -1;
+        }
     }
 
     return ino;
@@ -156,23 +191,23 @@ u32 search (MINODE* mip, char* name)
     char temp[128];
     u32 myino, parent;
 
-    // MOUNT changes
-    if (mip->mountptr)
-    {
-        ip = &(mip->mountptr->mounted_inode->INODE);
-        dev = mip->mountptr->dev;
+    //// MOUNT changes
+    //if (mip->mountptr)
+    //{
+    //    ip = &(mip->mountptr->mounted_inode->INODE);
+    //    dev = mip->mountptr->dev;
 
-        if (0 == strcmp(name, ".."))
-        {
-            findino(mip, &myino, &parent);
-            return parent;
-        }
-    }
-    else
-    {
+    //    if (0 == strcmp(name, ".."))
+    //    {
+    //        findino(mip, &myino, &parent);
+    //        return parent;
+    //    }
+    //}
+    //else
+    //{
         ip = &(mip->INODE);
         dev = mip->dev;
-    }
+    //}
 
     for (i = 0; i < EXT2_NDIR_BLOCKS; i++)
     {

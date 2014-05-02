@@ -11,12 +11,13 @@ do_cd()
     targetino = getino(&dev, pathName);
     if (-1 != targetino)
     {
+        printf("cd : getting dev %i, ino %i\n", dev, (int) targetino);
         mip = iget(dev, targetino);
         iput(running->cwd);
         if (mip->mounted)
         {
             running->cwd = mip->mountptr->mounted_inode;
-            iput(mip);
+            //iput(mip);
             running->cwd->refCount++;
         }
         else
