@@ -39,7 +39,7 @@ static command command_table[] =
 
     // LEVEL 3
     {"mount",   do_mount}, // Cameron
-    //{"umount",  umount},
+    {"umount",  do_umount}, // Gabe
     //{"cs",      cs},
     //{"fork",    do_fork},
     //{"ps",      do_ps},
@@ -128,8 +128,8 @@ void mount_root ()
     printf("mounted root\n");
     mount[0].mounted_inode = root;
     mount[0].dev = fd;
-    mount[0].ninodes = (root->INODE).s_inodes_count;
-    mount[0].nblocks = (root->INODE).s_blocks_count;
+    mount[0].ninodes = sp->s_inodes_count;
+    mount[0].nblocks = sp->s_blocks_count;
     strncpy(mount[0].image_name, device, 256);
     strncpy(mount[0].mount_name, "/", 256);
 

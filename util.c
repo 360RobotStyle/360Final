@@ -7,6 +7,7 @@ extern PROC* running;
 extern PROC* readyQueue;
 extern MINODE minode[NMINODES];
 extern MINODE* root;
+extern OFT oft[NOFT];
 extern MOUNT mount[NMOUNT];
 
 extern char line[256];
@@ -135,7 +136,10 @@ u32 getino (int* dev, char* pathname)
     {
         mip = iget(*dev, ino);
         ino = search(mip, pathNameTokenPtrs[i]);
-        *dev = mip->dev;
+        if (mip->mounted)
+            *dev = mip->mountptr->dev;
+        else
+            *dev = mip->dev;
         if (-1 == ino)
             return -1;
     }
@@ -146,18 +150,28 @@ u32 getino (int* dev, char* pathname)
 
 u32 search (MINODE* mip, char* name)
 {
-    int i;
+    int i, dev;
     char *cp;
     char buf[BLOCK_SIZE];
     char temp[128];
 
-    ip = &(mip->INODE);
+    // MOUNT changes
+    if (mip->mounted)
+    {
+        ip = &(mip->mountptr->mounted_inode->INODE);
+        dev = mip->mountptr->dev;
+    }
+    else
+    {
+        ip = &(mip->INODE);
+        dev = mip->dev;
+    }
 
     for (i = 0; i < EXT2_NDIR_BLOCKS; i++)
     {
         if (0 == ip->i_block[i]) break;
 
-        get_block(mip->dev, ip->i_block[i], buf);
+        get_block(dev, ip->i_block[i], buf);
         dp = (DIR*)buf;
         cp = buf;
 
@@ -187,18 +201,28 @@ u32 search (MINODE* mip, char* name)
 
 u32 search2 (MINODE* mip, char* name)
 {
-    int i;
+    int i, dev;
     char *cp;
     char buf[BLOCK_SIZE];
     char temp[128];
 
-    ip = &(mip->INODE);
+    // MOUNT changes
+    if (mip->mounted)
+    {
+        ip = &(mip->mountptr->mounted_inode->INODE);
+        dev = mip->mountptr->dev;
+    }
+    else
+    {
+        ip = &(mip->INODE);
+        dev = mip->dev;
+    }
 
     for (i = 0; i < EXT2_NDIR_BLOCKS; i++)
     {
         if (0 == ip->i_block[i]) break;
 
-        get_block(mip->dev, ip->i_block[i], buf);
+        get_block(dev, ip->i_block[i], buf);
         dp = (DIR*)buf;
         cp = buf;
 
@@ -253,7 +277,10 @@ u32 getino2 (int* dev, char* pathname)
     {
         mip = iget(*dev, ino);
         ino = search2(mip, pathNameTokenPtrs[i]);
-        *dev = mip->dev;
+        if (mip->mounted)
+            *dev = mip->mountptr->dev;
+        else
+            *dev = mip->dev;
         if (-1 == ino)
             return -1;
     }
