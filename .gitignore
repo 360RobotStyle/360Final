@@ -4,6 +4,8 @@
 *.obj
 *.elf
 
+*.*.gch
+
 # Libraries
 *.lib
 *.a
@@ -21,3 +23,4 @@
 *.i*86
 *.x86_64
 *.hex
+diskimage
