@@ -7,6 +7,8 @@ extern PROC* running;
 extern PROC* readyQueue;
 extern MINODE minode[NMINODES];
 extern MINODE* root;
+extern OFT oft[NOFT];
+extern MOUNT mount[NMOUNT];
 
 extern char line[256];
 extern char pathName[128];
@@ -112,7 +114,14 @@ u32 getino (int* dev, char* pathname)
     MINODE* mip;
     u32 ino;
     int i, workingDev;
+    int j;
     char* token;
+
+    if (0 == strcmp(pathName, "/"))
+    {
+        *dev = root->dev;
+        return root->ino;
+    }
 
     if ('/' == pathname[0])
     {
@@ -134,9 +143,46 @@ u32 getino (int* dev, char* pathname)
     {
         mip = iget(*dev, ino);
         ino = search(mip, pathNameTokenPtrs[i]);
-        *dev = mip->dev;
+
+
+        if (ino == mip->ino && 0 == strcmp("..", pathNameTokenPtrs[i]))
+        {
+            //printf("getting to special case\n");
+            for (j = 0; j < NMINODES; j++)
+            {
+                if (minode[j].refCount && 
+                        minode[j].mounted && 
+                        minode[j].mountptr->mounted_inode == mip)
+                {
+                    //printf("getting to special case2\n");
+                    //printf("changing minode from dev %i inode %i\n", mip->dev, mip->ino);
+                    iput(mip);
+                    mip = &minode[j];
+                    //printf("to dev %i inode %i\n", mip->dev, mip->ino);
+                    // FIXME does ref count for this minode need to increment?
+                    *dev = mip->dev;
+                    ino = search(mip, pathNameTokenPtrs[i]);
+                    //printf("from search, we got ino %i\n", (int) ino);
+                    return ino;
+                    //break;
+                }
+            }
+        }
+
+        if (mip->mounted)
+        {
+            printf("dev %i inode %i\n", mip->dev, mip->ino);
+            *dev = mip->mountptr->dev;
+        }
+        else
+        {
+            *dev = mip->dev;
+        }
         if (-1 == ino)
+        {
+            //printf("3\n");
             return -1;
+        }
     }
 
     return ino;
@@ -145,18 +191,46 @@ u32 getino (int* dev, char* pathname)
 
 u32 search (MINODE* mip, char* name)
 {
-    int i;
+    int i, dev;
     char *cp;
     char buf[BLOCK_SIZE];
     char temp[128];
+    u32 myino, parent;
 
-    ip = &(mip->INODE);
+//<<<<<<< HEAD
+//    // MOUNT changes
+//    if (mip->mountptr)
+//    {
+//        ip = &(mip->mountptr->mounted_inode->INODE);
+//        dev = mip->mountptr->dev;
+//    }
+//    else
+//    {
+//=======
+//    //// MOUNT changes
+//    //if (mip->mountptr)
+//    //{
+//    //    ip = &(mip->mountptr->mounted_inode->INODE);
+//    //    dev = mip->mountptr->dev;
+//
+//    //    if (0 == strcmp(name, ".."))
+//    //    {
+//    //        findino(mip, &myino, &parent);
+//    //        return parent;
+//    //    }
+//    //}
+//    //else
+//    //{
+//>>>>>>> cevans
+        ip = &(mip->INODE);
+        dev = mip->dev;
+    //}
 
     for (i = 0; i < EXT2_NDIR_BLOCKS; i++)
     {
         if (0 == ip->i_block[i]) break;
 
-        get_block(mip->dev, ip->i_block[i], buf);
+        get_block(dev, ip->i_block[i], buf);
         dp = (DIR*)buf;
         cp = buf;
 
@@ -186,18 +260,28 @@ u32 search (MINODE* mip, char* name)
 
 u32 search2 (MINODE* mip, char* name)
 {
-    int i;
+    int i, dev;
     char *cp;
     char buf[BLOCK_SIZE];
     char temp[128];
 
-    ip = &(mip->INODE);
+    // MOUNT changes
+    if (mip->mounted)
+    {
+        ip = &(mip->mountptr->mounted_inode->INODE);
+        dev = mip->mountptr->dev;
+    }
+    else
+    {
+        ip = &(mip->INODE);
+        dev = mip->dev;
+    }
 
     for (i = 0; i < EXT2_NDIR_BLOCKS; i++)
     {
         if (0 == ip->i_block[i]) break;
 
-        get_block(mip->dev, ip->i_block[i], buf);
+        get_block(dev, ip->i_block[i], buf);
         dp = (DIR*)buf;
         cp = buf;
 
@@ -232,6 +316,12 @@ u32 getino2 (int* dev, char* pathname)
     int i, workingDev;
     char* token;
 
+    if (0 == strcmp(pathName, "/"))
+    {
+        *dev = root->dev;
+        return root->ino;
+    }
+
     if ('/' == pathname[0])
     {
         ino = root->ino;
@@ -252,7 +342,10 @@ u32 getino2 (int* dev, char* pathname)
     {
         mip = iget(*dev, ino);
         ino = search2(mip, pathNameTokenPtrs[i]);
-        *dev = mip->dev;
+        if (mip->mounted)
+            *dev = mip->mountptr->dev;
+        else
+            *dev = mip->dev;
         if (-1 == ino)
             return -1;
     }
@@ -750,6 +843,40 @@ del_rec(MINODE *pip, char *name)
         put_block(pip->dev, (pip->INODE).i_block[i], buf);
     }
     return 0;
+}
+
+MOUNT *
+oalloc(int dev)
+{
+    int i;
+    for (i = 0; i < NMOUNT; i++)
+    {
+        if (0 == mount[i].dev)
+        {
+            mount[i].dev = dev;
+            return &(mount[i]);
+        }
+    }
+    err_printf("panic : mount table is full!\n");
+    return NULL;
+}
+
+void
+odealloc(int dev)
+{
+    int i;
+    for (i = 0; i < NMOUNT; i++)
+    {
+        if (dev == mount[i].dev)
+        {
+            mount[i].dev = 0;
+            mount[i].nblocks = 0;
+            mount[i].ninodes = 0;
+            mount[i].mounted_inode = NULL;
+            strcpy(mount[i].image_name, "");
+            strcpy(mount[i].mount_name, "");
+        }
+    }
 }
 
 OFT* falloc()

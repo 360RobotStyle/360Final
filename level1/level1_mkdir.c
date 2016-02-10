@@ -144,6 +144,11 @@ make_dir()
         return;
     }
     ino = getino(&dev, parent);
+    if (-1 == ino)
+    {
+        ino = 2;
+        dev = root->dev;
+    }
     pip = iget(dev, ino);
     // verify parent INODE is a DIR and child does not exist in the parent dir
     if ((0040000 == (pip->INODE.i_mode & 0040000)) && (0 == is_exist(pip, child)))

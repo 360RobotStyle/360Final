@@ -36,6 +36,7 @@ PROC* readyQueue;
 MINODE minode[NMINODES];
 MINODE* root;
 OFT oft[NOFT];
+MOUNT mount[NMOUNT];
 
 char line[256];
 char pathName[128];
@@ -140,6 +141,9 @@ void decFreeInodes(int dev);
  * Allocate inode
  */
 int ialloc (int dev);
+
+MOUNT *oalloc (int dev);
+void odealloc (int dev);
 
 /*
  * Decrement the free blocks count in superblock and group descriptor

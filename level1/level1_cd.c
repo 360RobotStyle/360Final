@@ -7,15 +7,23 @@ do_cd()
     MINODE *mip;
     u32 targetino;
     int dev;
-    u32 myino, parentino;
     strncpy(pathNameTokenized, pathName, strlen(pathName) + 1);
-    findino(running->cwd, &myino, &parentino);
     targetino = getino(&dev, pathName);
     if (-1 != targetino)
     {
+        printf("cd : getting dev %i, ino %i\n", dev, (int) targetino);
         mip = iget(dev, targetino);
         iput(running->cwd);
-        running->cwd = mip;
+        if (mip->mounted)
+        {
+            running->cwd = mip->mountptr->mounted_inode;
+            //iput(mip);
+            running->cwd->refCount++;
+        }
+        else
+        {
+            running->cwd = mip;
+        }
     }
     else
     {
